@@ -22,22 +22,28 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <!--        <spring.boot.version>4.3.19.RELEASE</spring.boot.version>-->
-        <javax.version>3.0.1</javax.version>
         <jstl.version>1.2</jstl.version>
         <hibernate.version>5.3.6.Final</hibernate.version>
         <postgresql.version>42.2.4</postgresql.version>
-        <spring.security.version>4.2.8.RELEASE</spring.security.version>
         <jackson.version>2.7.8</jackson.version>
-        <log4j.properties>1.2.17</log4j.properties>
-        <slf4j.properties>1.7.25</slf4j.properties>
     </properties>
 
     <dependencies>
+
         <!-- Spring Boot-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-jasper</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -49,24 +55,18 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-log4j</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-slf4j</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- Spring Core ORM-->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-orm</artifactId>
             <version>${spring.version}</version>
         </dependency>
 
-        <!-- hibernate -->
+        <!-- Hibernate -->
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-entitymanager</artifactId>
@@ -77,6 +77,7 @@
             <artifactId>hibernate-core</artifactId>
             <version>${hibernate.version}</version>
         </dependency>
+
         <!-- Postgresql driver -->
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -84,22 +85,15 @@
             <version>${postgresql.version}</version>
         </dependency>
 
-        <!-- Javax -->
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>${javax.version}</version>
-            <scope>provided</scope>
-        </dependency>
 
-        <!-- jstl -->
+        <!-- JSTL -->
         <dependency>
             <groupId>jstl</groupId>
             <artifactId>jstl</artifactId>
             <version>${jstl.version}</version>
         </dependency>
 
-        <!-- jackson -->
+        <!-- Jackson -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
@@ -116,7 +110,7 @@
             <version>${jackson.version}</version>
         </dependency>
 
-        <!-- junit -->
+        <!-- JUnit -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
