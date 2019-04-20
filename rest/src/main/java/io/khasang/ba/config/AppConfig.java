@@ -75,8 +75,8 @@ public class AppConfig {
     }
 
     @Bean
-    public UserDao userDao() {
-        return new UserDaoImpl(User.class);
+    public OperatorDao userDao() {
+        return new OperatorDaoImpl(Operator.class);
     }
 
     @Bean
