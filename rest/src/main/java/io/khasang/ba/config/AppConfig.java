@@ -128,4 +128,10 @@ public class AppConfig {
     public ClientDao clientDao() {
         return new ClientDaoImpl(Client.class);
     }
+
+
+    @Bean
+    public CustomerDao customerDao() {
+        return new CustomerDaoImpl(Customer.class);
+    }
 }
