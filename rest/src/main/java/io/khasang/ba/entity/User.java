@@ -5,8 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 /**
- * User entity class. Saves data about a user in "Business Assistant" project.
- * Field "description" is a user's category of request.
+ * Operator entity class. Operators in are users, handling customers' requests
  */
 @Entity
 @Table(name = "users")
