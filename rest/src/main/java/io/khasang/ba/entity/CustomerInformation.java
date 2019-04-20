@@ -1,7 +1,8 @@
 package io.khasang.ba.entity;
 
 import javax.persistence.Embeddable;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.Objects;
 
 /**
  * Embeddable class with common information about user, all field can be nullable and non unique
@@ -11,7 +12,7 @@ public class CustomerInformation {
 
     private String fullName;
 
-    private LocalDateTime birthDate;
+    private LocalDate birthDate;
 
     private String country;
 
@@ -27,11 +28,11 @@ public class CustomerInformation {
         this.fullName = fullName;
     }
 
-    public LocalDateTime getBirthDate() {
+    public LocalDate getBirthDate() {
         return birthDate;
     }
 
-    public void setBirthDate(LocalDateTime birthDate) {
+    public void setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
     }
 
@@ -63,24 +64,16 @@ public class CustomerInformation {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         CustomerInformation that = (CustomerInformation) o;
-
-        if (fullName != null ? !fullName.equals(that.fullName) : that.fullName != null) return false;
-        if (birthDate != null ? !birthDate.equals(that.birthDate) : that.birthDate != null) return false;
-        if (country != null ? !country.equals(that.country) : that.country != null) return false;
-        if (city != null ? !city.equals(that.city) : that.city != null) return false;
-        return about != null ? about.equals(that.about) : that.about == null;
-
+        return Objects.equals(fullName, that.fullName) &&
+                Objects.equals(birthDate, that.birthDate) &&
+                Objects.equals(country, that.country) &&
+                Objects.equals(city, that.city) &&
+                Objects.equals(about, that.about);
     }
 
     @Override
     public int hashCode() {
-        int result = fullName != null ? fullName.hashCode() : 0;
-        result = 31 * result + (birthDate != null ? birthDate.hashCode() : 0);
-        result = 31 * result + (country != null ? country.hashCode() : 0);
-        result = 31 * result + (city != null ? city.hashCode() : 0);
-        result = 31 * result + (about != null ? about.hashCode() : 0);
-        return result;
+        return Objects.hash(fullName, birthDate, country, city, about);
     }
 }

@@ -1,7 +1,11 @@
 package io.khasang.ba.entity;
 
+import org.hibernate.annotations.NaturalId;
+import org.hibernate.validator.constraints.NotEmpty;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 /**
  * Customer entity class. Contains embeddable class {@link CustomerInformation}
@@ -14,16 +18,19 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @NotEmpty
+    @NaturalId
     private String login;
 
     @Column(name = "registration_date", columnDefinition = "TIMESTAMP")
-    private LocalDateTime registrationDate;
+    private LocalDateTime registrationTimestamp;
 
-    @Column(nullable = false)
+    @NotEmpty
+    @Column(unique = true)
     private String password;
 
-    @Column(nullable = false, unique = true)
+    @NotEmpty
+    @Column(unique = true)
     private String email;
 
     @Embedded
@@ -45,12 +52,12 @@ public class Customer {
         this.login = login;
     }
 
-    public LocalDateTime getRegistrationDate() {
-        return registrationDate;
+    public LocalDateTime getRegistrationTimestamp() {
+        return registrationTimestamp;
     }
 
-    public void setRegistrationDate(LocalDateTime registrationDate) {
-        this.registrationDate = registrationDate;
+    public void setRegistrationTimestamp(LocalDateTime registrationTimestamp) {
+        this.registrationTimestamp = registrationTimestamp;
     }
 
     public String getPassword() {
@@ -81,24 +88,15 @@ public class Customer {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         Customer customer = (Customer) o;
-
-        if (!login.equals(customer.login)) return false;
-        if (!registrationDate.equals(customer.registrationDate)) return false;
-        if (!password.equals(customer.password)) return false;
-        if (!email.equals(customer.email)) return false;
-        return customerInformation != null ? customerInformation.equals(customer.customerInformation) : customer.customerInformation == null;
-
+        return Objects.equals(login, customer.login) &&
+                Objects.equals(password, customer.password) &&
+                Objects.equals(email, customer.email) &&
+                Objects.equals(customerInformation, customer.customerInformation);
     }
 
     @Override
     public int hashCode() {
-        int result = login.hashCode();
-        result = 31 * result + registrationDate.hashCode();
-        result = 31 * result + password.hashCode();
-        result = 31 * result + email.hashCode();
-        result = 31 * result + (customerInformation != null ? customerInformation.hashCode() : 0);
-        return result;
+        return Objects.hash(login, password, email, customerInformation);
     }
 }
