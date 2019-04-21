@@ -60,8 +60,8 @@ public class AppConfig {
     }
 
     @Bean
-    public RoleDao roleDao() {
-        return new RoleDaoImpl(Role.class);
+    public OperatorRoleDao operatorRoleDao() {
+        return new OperatorRoleDaoImpl(OperatorRole.class);
     }
 
     @Bean
