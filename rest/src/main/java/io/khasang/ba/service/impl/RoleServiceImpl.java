@@ -1,7 +1,7 @@
 package io.khasang.ba.service.impl;
 
 import io.khasang.ba.dao.RoleDao;
-import io.khasang.ba.entity.Role;
+import io.khasang.ba.entity.OperatorRole;
 import io.khasang.ba.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,34 +20,34 @@ public class RoleServiceImpl implements RoleService {
     /**
      * Add new role
      *
-     * @param newRole New instance of role
-     * @return Added {@link Role} instance
+     * @param newOperatorRole New instance of role
+     * @return Added {@link OperatorRole} instance
      */
     @Override
-    public Role addRole(Role newRole) {
-        return roleDao.add(newRole);
+    public OperatorRole addRole(OperatorRole newOperatorRole) {
+        return roleDao.add(newOperatorRole);
     }
 
     /**
      * Get role by id
      *
      * @param id Identifier of the desired role
-     * @return Found {@link Role} instance
+     * @return Found {@link OperatorRole} instance
      */
     @Override
-    public Role getRoleById(long id) {
+    public OperatorRole getRoleById(long id) {
         return roleDao.getById(id);
     }
 
     /**
      * Update existing role with new instance
      *
-     * @param updatedRole Updated role instance
-     * @return Updated {@link Role} instance
+     * @param updatedOperatorRole Updated role instance
+     * @return Updated {@link OperatorRole} instance
      */
     @Override
-    public Role updateRole(Role updatedRole) {
-        return roleDao.update(updatedRole);
+    public OperatorRole updateRole(OperatorRole updatedOperatorRole) {
+        return roleDao.update(updatedOperatorRole);
     }
 
     /**
@@ -56,7 +56,7 @@ public class RoleServiceImpl implements RoleService {
      * @return {@link List} instance of all roles
      */
     @Override
-    public List<Role> getAllRoles() {
+    public List<OperatorRole> getAllRoles() {
         return roleDao.getAll();
     }
 
@@ -64,10 +64,10 @@ public class RoleServiceImpl implements RoleService {
      * Delete role by id
      *
      * @param id Identifier of the role which should be deleted
-     * @return Deleted {@link Role} instance
+     * @return Deleted {@link OperatorRole} instance
      */
     @Override
-    public Role deleteRole(long id) {
+    public OperatorRole deleteRole(long id) {
         return roleDao.delete(getRoleById(id));
     }
 }

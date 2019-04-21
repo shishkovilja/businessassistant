@@ -1,10 +1,10 @@
 package io.khasang.ba.dao.impl;
 
 import io.khasang.ba.dao.RoleDao;
-import io.khasang.ba.entity.Role;
+import io.khasang.ba.entity.OperatorRole;
 
-public class RoleDaoImpl extends BasicDaoImpl<Role> implements RoleDao {
-    public RoleDaoImpl(Class<Role> entityClass) {
+public class RoleDaoImpl extends BasicDaoImpl<OperatorRole> implements RoleDao {
+    public RoleDaoImpl(Class<OperatorRole> entityClass) {
         super(entityClass);
     }
 }

@@ -1,5 +1,7 @@
 package io.khasang.ba.entity;
 
+import org.hibernate.annotations.NaturalId;
+
 import javax.persistence.*;
 import java.util.Objects;
 
@@ -9,13 +11,13 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "roles")
-public class Role {
+public class OperatorRole {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @NaturalId
     private String name;
 
     private String description;
@@ -48,9 +50,9 @@ public class Role {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Role role = (Role) o;
-        return Objects.equals(name, role.name) &&
-                Objects.equals(description, role.description);
+        OperatorRole operatorRole = (OperatorRole) o;
+        return Objects.equals(name, operatorRole.name) &&
+                Objects.equals(description, operatorRole.description);
     }
 
     @Override

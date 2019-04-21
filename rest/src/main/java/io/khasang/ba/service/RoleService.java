@@ -1,6 +1,6 @@
 package io.khasang.ba.service;
 
-import io.khasang.ba.entity.Role;
+import io.khasang.ba.entity.OperatorRole;
 
 import java.util.List;
 
@@ -12,39 +12,39 @@ public interface RoleService {
     /**
      * Add new role
      *
-     * @param newRole New instance of role
-     * @return Added {@link Role} instance
+     * @param newOperatorRole New instance of role
+     * @return Added {@link OperatorRole} instance
      */
-    Role addRole(Role newRole);
+    OperatorRole addRole(OperatorRole newOperatorRole);
 
     /**
      * Get role by id
      *
      * @param id Identifier of the desired role
-     * @return Found {@link Role} instance
+     * @return Found {@link OperatorRole} instance
      */
-    Role getRoleById(long id);
+    OperatorRole getRoleById(long id);
 
     /**
      * Update existing role with new instance
      *
-     * @param updatedRole Updated role instance
-     * @return Updated {@link Role} instance
+     * @param updatedOperatorRole Updated role instance
+     * @return Updated {@link OperatorRole} instance
      */
-    Role updateRole(Role updatedRole);
+    OperatorRole updateRole(OperatorRole updatedOperatorRole);
 
     /**
      * Get all roles
      *
      * @return {@link List} instance of all roles
      */
-    List<Role> getAllRoles();
+    List<OperatorRole> getAllRoles();
 
     /**
      * Delete role by id
      *
      * @param id Identifier of the role which should be deleted
-     * @return Deleted {@link Role} instance
+     * @return Deleted {@link OperatorRole} instance
      */
-    Role deleteRole(long id);
+    OperatorRole deleteRole(long id);
 }

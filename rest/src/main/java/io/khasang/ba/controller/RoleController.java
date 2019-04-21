@@ -1,6 +1,6 @@
 package io.khasang.ba.controller;
 
-import io.khasang.ba.entity.Role;
+import io.khasang.ba.entity.OperatorRole;
 import io.khasang.ba.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -20,32 +20,32 @@ public class RoleController {
 
     @RequestMapping(value = "/add", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
     @ResponseBody
-    public Role addRole(@RequestBody Role newRole) {
-        roleService.addRole(newRole);
-        return newRole;
+    public OperatorRole addRole(@RequestBody OperatorRole newOperatorRole) {
+        roleService.addRole(newOperatorRole);
+        return newOperatorRole;
     }
 
     @RequestMapping(value = "/get/{id}", method = RequestMethod.GET, produces = "application/json;charset=utf-8")
     @ResponseBody
-    public Role getRoleById(@PathVariable(value = "id") long id) {
+    public OperatorRole getRoleById(@PathVariable(value = "id") long id) {
         return roleService.getRoleById(id);
     }
 
     @RequestMapping(value = "/update", method = RequestMethod.PUT, produces = "application/json;charset=utf-8")
     @ResponseBody
-    public Role updateRole(@RequestBody Role updatedRole) {
-        return roleService.updateRole(updatedRole);
+    public OperatorRole updateRole(@RequestBody OperatorRole updatedOperatorRole) {
+        return roleService.updateRole(updatedOperatorRole);
     }
 
     @RequestMapping(value = "/get/all", method = RequestMethod.GET, produces = "application/json;charset=utf-8")
     @ResponseBody
-    public List<Role> getAllRoles() {
+    public List<OperatorRole> getAllRoles() {
         return roleService.getAllRoles();
     }
 
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE, produces = "application/json;charset=utf-8")
     @ResponseBody
-    public Role deleteRole(@PathVariable(value = "id") long id) {
+    public OperatorRole deleteRole(@PathVariable(value = "id") long id) {
         return roleService.deleteRole(id);
     }
 }
