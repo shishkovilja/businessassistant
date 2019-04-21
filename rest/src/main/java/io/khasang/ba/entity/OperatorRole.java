@@ -10,7 +10,7 @@ import java.util.Objects;
  * Each role must have unique name
  */
 @Entity
-@Table(name = "roles")
+@Table(name = "operator_roles")
 public class OperatorRole {
 
     @Id

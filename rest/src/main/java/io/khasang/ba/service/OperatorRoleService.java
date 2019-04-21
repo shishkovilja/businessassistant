@@ -7,15 +7,15 @@ import java.util.List;
 /**
  * Service layer interface for role management
  */
-public interface RoleService {
+public interface OperatorRoleService {
 
     /**
-     * Add new role
+     * Add new operator's role
      *
-     * @param newOperatorRole New instance of role
+     * @param newOperatorRole New instance of operator's role
      * @return Added {@link OperatorRole} instance
      */
-    OperatorRole addRole(OperatorRole newOperatorRole);
+    OperatorRole addOperatorRole(OperatorRole newOperatorRole);
 
     /**
      * Get role by id
@@ -23,22 +23,22 @@ public interface RoleService {
      * @param id Identifier of the desired role
      * @return Found {@link OperatorRole} instance
      */
-    OperatorRole getRoleById(long id);
+    OperatorRole getOperatorRoleById(long id);
 
     /**
-     * Update existing role with new instance
+     * Update existing operator role with new instance
      *
      * @param updatedOperatorRole Updated role instance
      * @return Updated {@link OperatorRole} instance
      */
-    OperatorRole updateRole(OperatorRole updatedOperatorRole);
+    OperatorRole updateOperatorRole(OperatorRole updatedOperatorRole);
 
     /**
      * Get all roles
      *
      * @return {@link List} instance of all roles
      */
-    List<OperatorRole> getAllRoles();
+    List<OperatorRole> getAllOperatorRoles();
 
     /**
      * Delete role by id
@@ -46,5 +46,5 @@ public interface RoleService {
      * @param id Identifier of the role which should be deleted
      * @return Deleted {@link OperatorRole} instance
      */
-    OperatorRole deleteRole(long id);
+    OperatorRole deleteOperatorRole(long id);
 }
