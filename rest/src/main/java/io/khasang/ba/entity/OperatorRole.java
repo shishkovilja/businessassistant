@@ -1,13 +1,15 @@
 package io.khasang.ba.entity;
 
 import org.hibernate.annotations.NaturalId;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
 import java.util.Objects;
 
 /**
  * Role entity class. Provides spring security roles in "Business Assistant" project.
- * Each role must have unique name
+ * Each role must have unique name, which should not be changed after role creation (via PUT requests).
+ * For this purpose, {@link NaturalId} annotations is used
  */
 @Entity
 @Table(name = "operator_roles")
@@ -17,6 +19,7 @@ public class OperatorRole {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @NotEmpty
     @NaturalId
     private String name;
 
