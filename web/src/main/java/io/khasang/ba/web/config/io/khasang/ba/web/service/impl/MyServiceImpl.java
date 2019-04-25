@@ -1,6 +1,6 @@
-package io.khasang.ba.service.impl;
+package io.khasang.ba.web.config.io.khasang.ba.web.service.impl;
 
-import io.khasang.ba.service.MyService;
+import io.khasang.ba.web.config.io.khasang.ba.web.service.MyService;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;

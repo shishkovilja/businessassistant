@@ -1,4 +1,4 @@
-package io.khasang.ba.util;
+package io.khasang.ba.web.config.io.khasang.ba.web.util;
 
 import net.yandex.speller.services.spellservice.CheckTextRequest;
 import net.yandex.speller.services.spellservice.SpellServiceSoap;

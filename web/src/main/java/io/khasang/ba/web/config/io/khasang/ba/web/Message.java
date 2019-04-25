@@ -1,4 +1,4 @@
-package io.khasang.ba;
+package io.khasang.ba.web.config.io.khasang.ba.web;
 
 import org.springframework.stereotype.Component;
 

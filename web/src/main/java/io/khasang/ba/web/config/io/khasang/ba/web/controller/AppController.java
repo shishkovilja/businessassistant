@@ -1,9 +1,9 @@
-package io.khasang.ba.controller;
+package io.khasang.ba.web.config.io.khasang.ba.web.controller;
 
-import io.khasang.ba.Message;
-import io.khasang.ba.service.CreateTable;
-import io.khasang.ba.service.MyService;
-import io.khasang.ba.util.CheckText;
+import io.khasang.ba.web.config.io.khasang.ba.web.Message;
+import io.khasang.ba.web.config.io.khasang.ba.web.service.CreateTable;
+import io.khasang.ba.web.config.io.khasang.ba.web.service.MyService;
+import io.khasang.ba.web.config.io.khasang.ba.web.util.CheckText;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,36 +22,35 @@ import java.util.Date;
 
 @Controller
 public class AppController {
+
+    private static final Logger log = LoggerFactory.getLogger(AppController.class);
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
     @Autowired
     private Message message;
     @Autowired
     private CreateTable createTable;
     @Autowired
     private CheckText checkText;
-
     @Qualifier("myServiceImpl")
     @Autowired
     private MyService myService;
 
-    private static final Logger log = LoggerFactory.getLogger(AppController.class);
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-
     // localhost:8080/
     @RequestMapping("/")
-    public String getHelloPage(Model model){
+    public String getHelloPage(Model model) {
         log.info("Current time {}", dateFormat.format(new Date()));
         model.addAttribute("name", myService.getName());
         return "home";
     }
 
     @RequestMapping("/catinfo")
-    public String getHelloPage(){
+    public String getHelloPage() {
         return "cat";
     }
 
     // localhost:8080/name/asdasd
     @RequestMapping("/name/{name}")
-    public String getName(@PathVariable("name") String name, Model model){
+    public String getName(@PathVariable("name") String name, Model model) {
         model.addAttribute("name", name);
         return "hello";
     }
