@@ -25,6 +25,7 @@ public class AppController {
 
     private static final Logger log = LoggerFactory.getLogger(AppController.class);
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+
     @Autowired
     private Message message;
     @Autowired
@@ -40,7 +41,7 @@ public class AppController {
     public String getHelloPage(Model model) {
         log.info("Current time {}", dateFormat.format(new Date()));
         model.addAttribute("name", myService.getName());
-        return "home";
+        return "hello";
     }
 
     @RequestMapping("/catinfo")
