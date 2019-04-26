@@ -12,10 +12,6 @@
     <artifactId>web</artifactId>
 
     <dependencies>
-        <!--        <dependency>-->
-        <!--            <groupId>org.springframework.boot</groupId>-->
-        <!--            <artifactId>spring-boot-starter-web</artifactId>-->
-        <!--        </dependency>-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
@@ -42,11 +38,5 @@
             <version>${jstl.version}</version>
         </dependency>
 
-        <!--        &lt;!&ndash; Postgresql driver &ndash;&gt;-->
-        <!--        <dependency>-->
-        <!--            <groupId>org.postgresql</groupId>-->
-        <!--            <artifactId>postgresql</artifactId>-->
-        <!--            <version>${postgresql.version}</version>-->
-        <!--        </dependency>-->
     </dependencies>
 </project>

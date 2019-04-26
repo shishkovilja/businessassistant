@@ -31,12 +31,5 @@
             <artifactId>hibernate-core</artifactId>
             <version>${hibernate.version}</version>
         </dependency>
-
-        <!--        &lt;!&ndash; Postgresql driver &ndash;&gt;-->
-        <!--        <dependency>-->
-        <!--            <groupId>org.postgresql</groupId>-->
-        <!--            <artifactId>postgresql</artifactId>-->
-        <!--            <version>${postgresql.version}</version>-->
-        <!--        </dependency>-->
     </dependencies>
 </project>
