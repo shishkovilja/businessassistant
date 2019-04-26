@@ -7,6 +7,8 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
+import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
+import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
 
 @Configuration
 @ComponentScan({"io.khasang.ba"})
@@ -14,12 +16,28 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 public class WebConfig extends WebMvcConfigurerAdapter {
 
     @Bean
-    public InternalResourceViewResolver viewResolver() {
+    public InternalResourceViewResolver viewJspResolver() {
         InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
         viewResolver.setPrefix("/WEB-INF/views/");
         viewResolver.setSuffix(".jsp");
         viewResolver.setContentType("text/html;charset=utf-8");
         return viewResolver;
+    }
+
+    @Bean
+    public FreeMarkerViewResolver viewFtlResolver() {
+        FreeMarkerViewResolver viewResolver = new FreeMarkerViewResolver();
+//        viewResolver.setPrefix("/WEB-INF/views/");
+        viewResolver.setSuffix(".ftl");
+        viewResolver.setContentType("text/html;charset=utf-8");
+        return viewResolver;
+    }
+
+    @Bean
+    public FreeMarkerConfigurer getFreeMarkerConfigurer() {
+        FreeMarkerConfigurer freeMarkerConfigurer = new FreeMarkerConfigurer();
+        freeMarkerConfigurer.setTemplateLoaderPath("/WEB-INF/views/");
+        return freeMarkerConfigurer;
     }
 
     @Override

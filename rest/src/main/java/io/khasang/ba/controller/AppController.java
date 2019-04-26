@@ -49,6 +49,16 @@ public class AppController {
         return "cat";
     }
 
+    @RequestMapping("/operatorinfo")
+    public String getOperatorPage(){
+        return "operator";
+    }
+
+    @RequestMapping("/main")
+    public String getMainPage(){
+        return "main";
+    }
+
     // localhost:8080/name/asdasd
     @RequestMapping("/name/{name}")
     public String getName(@PathVariable("name") String name, Model model){
