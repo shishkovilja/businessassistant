@@ -5,7 +5,6 @@ import io.khasang.ba.entity.CustomerInformation;
 import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
@@ -326,7 +325,7 @@ public class CustomerControllerIntegrationTest {
         Customer newCustomer = customerBuilder
                 .addLogin(oldCustomer.getLogin())
                 .addEmail(UUID.randomUUID().toString() + "@newmail.com")
-                .addPassword(new BCryptPasswordEncoder().encode("new_password"))
+                .addPassword("new_password")
                 .addFullName("New Full Name")
                 .addBirthDate(LocalDate.of(1990, 10, 15))
                 .addCountry("USA")
@@ -373,7 +372,7 @@ public class CustomerControllerIntegrationTest {
                 .addAbout(TEST_CUSTOMER_ABOUT)
                 .addCity(TEST_CUSTOMER_CITY)
                 .addFullName(TEST_CUSTOMER_FULL_NAME)
-                .addPassword(new BCryptPasswordEncoder().encode(TEST_CUSTOMER_RAW_PASSWORD))
+                .addPassword(TEST_CUSTOMER_RAW_PASSWORD)
                 .addBirthDate(TEST_CUSTOMER_BIRTHDATE)
                 .addCountry(TEST_CUSTOMER_COUNTRY)
                 .build();
