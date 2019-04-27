@@ -26,7 +26,6 @@ public class Operator {
     private LocalDateTime registrationTimestamp;
 
     @NotEmpty
-    @Column(unique = true)
     private String password;
 
     @NotEmpty
