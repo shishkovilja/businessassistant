@@ -31,7 +31,7 @@ public interface SpellServiceSoap {
      */
     @WebMethod(action = "http://speller.yandex.net/services/spellservice/checkText")
     @WebResult(name = "CheckTextResponse", targetNamespace = "http://speller.yandex.net/services/spellservice", partName = "parameters")
-    public CheckTextResponse checkText(
+    CheckTextResponse checkText(
             @WebParam(name = "CheckTextRequest", targetNamespace = "http://speller.yandex.net/services/spellservice", partName = "parameters")
                     CheckTextRequest parameters);
 
@@ -43,7 +43,7 @@ public interface SpellServiceSoap {
      */
     @WebMethod(action = "http://speller.yandex.net/services/spellservice/checkTexts")
     @WebResult(name = "CheckTextsResponse", targetNamespace = "http://speller.yandex.net/services/spellservice", partName = "parameters")
-    public CheckTextsResponse checkTexts(
+    CheckTextsResponse checkTexts(
             @WebParam(name = "CheckTextsRequest", targetNamespace = "http://speller.yandex.net/services/spellservice", partName = "parameters")
                     CheckTextsRequest parameters);
 

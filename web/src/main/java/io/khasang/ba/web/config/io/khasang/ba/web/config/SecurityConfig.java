@@ -1,4 +1,4 @@
-package io.khasang.ba.config;
+package io.khasang.ba.web.config.io.khasang.ba.web.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;

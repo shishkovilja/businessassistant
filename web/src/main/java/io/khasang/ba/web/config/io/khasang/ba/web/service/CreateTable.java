@@ -1,4 +1,4 @@
-package io.khasang.ba.service;
+package io.khasang.ba.web.config.io.khasang.ba.web.service;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 
