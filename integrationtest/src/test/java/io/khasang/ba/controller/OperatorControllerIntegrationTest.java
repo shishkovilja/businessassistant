@@ -5,7 +5,6 @@ import io.khasang.ba.entity.OperatorInformation;
 import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
@@ -326,7 +325,7 @@ public class OperatorControllerIntegrationTest {
         Operator newOperator = operatorBuilder
                 .addLogin(oldOperator.getLogin())
                 .addEmail(UUID.randomUUID().toString() + "@newmail.com")
-                .addPassword(new BCryptPasswordEncoder().encode("new_password"))
+                .addPassword("new_password")
                 .addFullName("New Full Name")
                 .addBirthDate(LocalDate.of(1990, 10, 15))
                 .addCountry("USA")
@@ -373,7 +372,7 @@ public class OperatorControllerIntegrationTest {
                 .addAbout(TEST_OPERATOR_ABOUT)
                 .addCity(TEST_OPERATOR_CITY)
                 .addFullName(TEST_OPERATOR_FULL_NAME)
-                .addPassword(new BCryptPasswordEncoder().encode(TEST_OPERATOR_RAW_PASSWORD))
+                .addPassword(TEST_OPERATOR_RAW_PASSWORD)
                 .addBirthDate(TEST_OPERATOR_BIRTHDATE)
                 .addCountry(TEST_OPERATOR_COUNTRY)
                 .build();
