@@ -6,6 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.NotNull;
 
 @Entity
 public class Address {
@@ -14,10 +15,17 @@ public class Address {
     private long id;
 
     private String region;
+
+    @NotNull
     private String city;
+
+    @NotNull
     private String street;
     private int postcode;
+
+    @NotNull
     private String hause;
+
     private String office;
 
     //Geographic coordinates latitude
