@@ -2,11 +2,15 @@ package io.khasang.ba.entity;
 
 import org.hibernate.annotations.ColumnDefault;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * This entity storages address something
+ * minimal requariment on input is City, Street and Hause.
+ */
 
 @Entity
 public class Address {
@@ -47,9 +51,11 @@ public class Address {
         this.hause = hause;
     }
 
-    public Address(double latitude, double longitude) {
-        this.latitude = latitude;
-        this.longitude = longitude;
+    public Address(String city, String street, String hause, String office) {
+        this.city = city;
+        this.street = street;
+        this.hause = hause;
+        this.office = office;
     }
 
     public Address(String region, String city, String street, int postcode, String hause, String office,
