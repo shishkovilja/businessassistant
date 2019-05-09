@@ -8,6 +8,7 @@ import org.springframework.http.*;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -74,63 +75,89 @@ public class CustomerControllerIntegrationTest {
     }
 
     /**
-     * Check not-null constraint for customer's login during addition process
+     * Check NotBlank(+ NotNull + NotEmpty) constraint for customer's login during addition process
      */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkAddWithNullLogin() {
-        Customer customerWithNullLogin = getMockCustomer();
-        customerWithNullLogin.setLogin(null);
-        getResponseEntityFromPostRequest(customerWithNullLogin);
+    @Test
+    public void checkAddWithBlankLogin() {
+
+        //NotNull + NotEmpty
+        addWithIncorrectField(null, "login");
+        addWithIncorrectField("", "login");
+
+        //Check NotBlank (whitespaces and some other characters)
+        addWithIncorrectField("   ", "login");
+        addWithIncorrectField("\t", "login");
+        addWithIncorrectField("\n", "login");
     }
 
     /**
-     * Check not-empty constraint for customer's login during addition process
+     * Check NotBlank(+ NotNull + NotEmpty) constraint for customer's email during addition process
      */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkAddWithEmptyLogin() {
-        Customer customerWithEmptyLogin = getMockCustomer();
-        customerWithEmptyLogin.setLogin("");
-        getResponseEntityFromPostRequest(customerWithEmptyLogin);
+    @Test
+    public void checkAddWithBlankEmail() {
+
+        //NotNull + NotEmpty
+        addWithIncorrectField(null, "email");
+        addWithIncorrectField("", "email");
+
+        //Check NotBlank (whitespaces and some other characters)
+        addWithIncorrectField("   ", "email");
+        addWithIncorrectField("\t", "email");
+        addWithIncorrectField("\n", "email");
     }
 
     /**
-     * Check not-null constraint for customer's email during addition process
+     * Check NotBlank(+ NotNull + NotEmpty) constraint for customer's password during addition process
      */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkAddWithNullEmail() {
-        Customer customerWithNullEmail = getMockCustomer();
-        customerWithNullEmail.setEmail(null);
-        getResponseEntityFromPostRequest(customerWithNullEmail);
+    @Test
+    public void checkAddWithBlankPassword() {
+
+        //NotNull + NotEmpty
+        addWithIncorrectField(null, "password");
+        addWithIncorrectField("", "password");
+
+        //Check NotBlank (whitespaces and some other characters)
+        addWithIncorrectField("   ", "password");
+        addWithIncorrectField("\t", "password");
+        addWithIncorrectField("\n", "password");
     }
 
     /**
-     * Check not-empty constraint for customer's email during addition process
+     * Utility method to check Customer entity addition with incorrect login (instead of mock value).
+     * Method checks that {@link HttpServerErrorException#getStatusCode()} equals to <strong>BAD GATEWAY</strong>
+     * HTTP response (Internal Server Error). <br>
+     * <em>NOTICE: This behaviour should be changed, when correct status codes will be sent in responses</em>
+     *
+     * @param incorrectField <em>incorrect login</em> used instead of mock login value
      */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkAddWithEmptyEmail() {
-        Customer customerWithEmptyEmail = getMockCustomer();
-        customerWithEmptyEmail.setEmail("");
-        getResponseEntityFromPostRequest(customerWithEmptyEmail);
+    private <T> void addWithIncorrectField(T incorrectField, String fieldName) {
+        try {
+            Customer mockCustomer = getMockCustomer();
+            setField(mockCustomer, fieldName, incorrectField);
+            getResponseEntityFromPostRequest(mockCustomer);
+        } catch (IllegalAccessException | NoSuchFieldException e) {
+            fail(e.toString());
+        } catch (HttpServerErrorException e) {
+            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, e.getStatusCode());
+        }
     }
 
     /**
-     * Check not-null constraint for customer's password during addition process
+     * Utility method to set a Customer's field via reflection mechanism
+     *
+     * @param customer   Customer instance to set field for
+     * @param fieldName  name of field (eg. "login" or "email")
+     * @param fieldValue field value
+     * @param <T>        type parameter of field
+     * @throws NoSuchFieldException   if field with specified fieldName not found
+     * @throws IllegalAccessException in case of access errors
      */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkAddWithNullPassword() {
-        Customer customerWithNullPassword = getMockCustomer();
-        customerWithNullPassword.setPassword(null);
-        getResponseEntityFromPostRequest(customerWithNullPassword);
-    }
-
-    /**
-     * Check not-empty constraint for customer's password during addition process
-     */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkAddWithEmptyPassword() {
-        Customer customerWithEmptyPassword = getMockCustomer();
-        customerWithEmptyPassword.setPassword("");
-        getResponseEntityFromPostRequest(customerWithEmptyPassword);
+    private <T> void setField(Customer customer, String fieldName, T fieldValue)
+            throws NoSuchFieldException, IllegalAccessException {
+        Field declaredField = Customer.class.getDeclaredField(fieldName);
+        declaredField.setAccessible(true);
+        declaredField.set(customer, fieldValue);
+        declaredField.setAccessible(false);
     }
 
     /**
