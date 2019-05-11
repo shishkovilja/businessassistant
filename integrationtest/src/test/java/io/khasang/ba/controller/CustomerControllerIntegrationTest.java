@@ -359,18 +359,21 @@ public class CustomerControllerIntegrationTest {
      * @return updated customer
      */
     private Customer getChangedCustomer(Customer oldCustomer) {
-        CustomerBuilder customerBuilder = new CustomerBuilder();
-        Customer newCustomer = customerBuilder
-                .addLogin(oldCustomer.getLogin())
-                .addEmail(UUID.randomUUID().toString() + "@newmail.com")
-                .addPassword("new_password")
-                .addFullName("New Full Name")
-                .addBirthDate(LocalDate.of(1990, 10, 15))
-                .addCountry("USA")
-                .addCity("New York")
-                .addAbout("new_about")
-                .build();
+        Customer newCustomer = new Customer();
+        CustomerInformation customerInformation = new CustomerInformation();
+
         newCustomer.setId(oldCustomer.getId());
+        newCustomer.setLogin(oldCustomer.getLogin());
+        newCustomer.setPassword("new_password");
+        newCustomer.setEmail(UUID.randomUUID().toString() + "@newmail.com");
+        newCustomer.setCustomerInformation(customerInformation);
+
+        customerInformation.setFullName("New Full Name");
+        customerInformation.setBirthDate(LocalDate.of(1990, 10, 15));
+        customerInformation.setCountry("USA");
+        customerInformation.setCity("New York");
+        customerInformation.setAbout("new_about");
+
         return newCustomer;
     }
 
@@ -398,22 +401,26 @@ public class CustomerControllerIntegrationTest {
     }
 
     /**
-     * Build mock {@link Customer} instance vie {@link CustomerBuilder}
+     * Create mock {@link Customer} instance
      *
-     * @return prefilled mock customer instance
+     * @return mock customer instance
      */
     private Customer getMockCustomer() {
-        CustomerBuilder customerBuilder = new CustomerBuilder();
-        return customerBuilder
-                .addLogin(TEST_CUSTOMER_LOGIN_PREFIX + UUID.randomUUID().toString())
-                .addEmail(UUID.randomUUID().toString() + TEST_CUSTOMER_EMAIL_SUFFIX)
-                .addAbout(TEST_CUSTOMER_ABOUT)
-                .addCity(TEST_CUSTOMER_CITY)
-                .addFullName(TEST_CUSTOMER_FULL_NAME)
-                .addPassword(TEST_CUSTOMER_RAW_PASSWORD)
-                .addBirthDate(TEST_CUSTOMER_BIRTHDATE)
-                .addCountry(TEST_CUSTOMER_COUNTRY)
-                .build();
+        Customer customer = new Customer();
+        CustomerInformation customerInformation = new CustomerInformation();
+
+        customer.setLogin(TEST_CUSTOMER_LOGIN_PREFIX + UUID.randomUUID().toString());
+        customer.setPassword(TEST_CUSTOMER_RAW_PASSWORD);
+        customer.setEmail(UUID.randomUUID().toString() + TEST_CUSTOMER_EMAIL_SUFFIX);
+        customer.setCustomerInformation(customerInformation);
+
+        customerInformation.setFullName(TEST_CUSTOMER_FULL_NAME);
+        customerInformation.setBirthDate(TEST_CUSTOMER_BIRTHDATE);
+        customerInformation.setCountry(TEST_CUSTOMER_COUNTRY);
+        customerInformation.setCity(TEST_CUSTOMER_CITY);
+        customerInformation.setAbout(TEST_CUSTOMER_ABOUT);
+
+        return customer;
     }
 
     /**
@@ -455,68 +462,5 @@ public class CustomerControllerIntegrationTest {
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertNotNull(deletedCustomer);
         return deletedCustomer;
-    }
-
-    /**
-     * Static inner builder of customer
-     */
-    protected static class CustomerBuilder {
-        private CustomerInformation customerInformation;
-
-        //Instance of built Customer
-        private Customer customer;
-
-        public CustomerBuilder() {
-            customer = new Customer();
-            customerInformation = new CustomerInformation();
-            customer.setCustomerInformation(customerInformation);
-        }
-
-        public Customer build() {
-            assertNotNull(customer.getLogin());
-            assertNotNull(customer.getPassword());
-            assertNotNull(customer.getEmail());
-            return customer;
-        }
-
-        public CustomerBuilder addLogin(String login) {
-            customer.setLogin(login);
-            return this;
-        }
-
-        public CustomerBuilder addEmail(String email) {
-            customer.setEmail(email);
-            return this;
-        }
-
-        public CustomerBuilder addPassword(String password) {
-            customer.setPassword(password);
-            return this;
-        }
-
-        public CustomerBuilder addBirthDate(LocalDate birthDate) {
-            customerInformation.setBirthDate(birthDate);
-            return this;
-        }
-
-        public CustomerBuilder addFullName(String fullName) {
-            customerInformation.setFullName(fullName);
-            return this;
-        }
-
-        public CustomerBuilder addAbout(String about) {
-            customerInformation.setAbout(about);
-            return this;
-        }
-
-        public CustomerBuilder addCountry(String country) {
-            customerInformation.setCountry(country);
-            return this;
-        }
-
-        public CustomerBuilder addCity(String city) {
-            customerInformation.setCity(city);
-            return this;
-        }
     }
 }
