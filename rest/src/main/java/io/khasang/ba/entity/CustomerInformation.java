@@ -1,8 +1,6 @@
 package io.khasang.ba.entity;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import javax.persistence.Embeddable;
 import java.time.LocalDate;
@@ -11,9 +9,7 @@ import java.time.LocalDate;
  * Embeddable class with common information about user, all field can be nullable and non unique
  */
 @Embeddable
-@Setter
-@Getter
-@EqualsAndHashCode
+@Data
 public class CustomerInformation {
 
     private String fullName;
