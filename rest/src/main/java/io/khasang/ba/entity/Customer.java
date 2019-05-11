@@ -1,8 +1,7 @@
 package io.khasang.ba.entity;
 
+import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -12,11 +11,9 @@ import java.time.LocalDateTime;
 /**
  * Customer entity class. Contains embeddable class {@link CustomerInformation}
  */
+@Data
 @Entity
 @Table(name = "customers")
-@Setter
-@Getter
-@EqualsAndHashCode
 public class Customer {
 
     @Id
