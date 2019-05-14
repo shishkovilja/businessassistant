@@ -17,7 +17,7 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @Entity
-@Table(name = "operator_roles")
+@Table(name = "customer_request_types")
 public class CustomerRequestType {
 
     @Id
@@ -31,6 +31,7 @@ public class CustomerRequestType {
 
     private String description;
 
+    @Enumerated
     @NotNull
     @Column(name = "request_category")
     private CustomerRequestCategory customerRequestCategory;
