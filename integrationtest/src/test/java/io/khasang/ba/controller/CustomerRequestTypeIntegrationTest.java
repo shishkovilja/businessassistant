@@ -240,7 +240,7 @@ public class CustomerRequestTypeIntegrationTest {
     }
 
     /**
-     * Put customerRequestType for update
+     * Put customer's request type for update
      *
      * @param customerRequestType CustomerRequestType, which should be updated on service
      */
@@ -262,7 +262,7 @@ public class CustomerRequestTypeIntegrationTest {
     }
 
     /**
-     * Change users field for further update
+     * Change customer's request type field for further update
      *
      * @param oldCustomerRequestType customerRequestType instance which updated {@link CustomerRequestType}
      * @return updated customerRequestType
@@ -284,8 +284,9 @@ public class CustomerRequestTypeIntegrationTest {
     }
 
     /**
-     * Get created test CustomerRequestType entity from POST response during customerRequestType creation procedure. Instead of creating {@link CustomerRequestType}
-     * instance by constructor, this method returns instance from response, thus created CustomerRequestType contains table identifier
+     * Get created test CustomerRequestType entity from POST response during creation procedure.
+     * Instead of creating {@link CustomerRequestType} instance by constructor, this method returns instance from response,
+     * thus created CustomerRequestType contains table identifier
      *
      * @return Instance of {@link CustomerRequestType} with generated identifier
      */
@@ -344,7 +345,7 @@ public class CustomerRequestTypeIntegrationTest {
     }
 
     /**
-     * Utility method which deletes customerRequestType by id and retrieves customerRequestType entity from DELETE response body
+     * Utility method which deletes customer's request type  by id and retrieves entity from DELETE response body
      *
      * @param id Id of the customerRequestType which should be deleted
      * @return Deleted customerRequestType
