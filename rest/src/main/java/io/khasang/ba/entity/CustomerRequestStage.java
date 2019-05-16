@@ -19,7 +19,6 @@ import java.util.List;
  * it has <em>@OneToMany</em> relation with <em>Operator</em> entity.
  */
 
-
 @Data
 @Entity
 @Table(name = "customer_request_stages")
