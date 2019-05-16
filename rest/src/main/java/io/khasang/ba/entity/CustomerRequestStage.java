@@ -11,10 +11,8 @@ import java.util.List;
 /**
  * A customer request stage entity class. Provides separated stages in order to organize customers' requests processing.
  * Each customer's request should pass a couple of stages (eg. "Accepted" stage, "Started" stage, "Finished" stage etc).<br>
- * <p>
  * This stages "names" are instances of //TODO CustomerRequestStageName
  * Each instance of CustomerRequestStage has <em>@OneToOne</em> relation with //TODO CustomerRequestStageName <br>
- * <p>
  * CustomerRequestStage entity encapsulates a list of {@link Operator} entities assigned to this request stage, i.e.
  * it has <em>@OneToMany</em> relation with <em>Operator</em> entity.
  */
