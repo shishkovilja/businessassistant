@@ -95,4 +95,9 @@ public class AppConfig {
     public CustomerRequestTypeDao customerRequestTypeDao() {
         return new CustomerRequestTypeDaoImpl(CustomerRequestType.class);
     }
+
+    @Bean
+    public CustomerRequestStageDao customerRequestStageDao() {
+        return new CustomerRequestStageDaoImpl(CustomerRequestStage.class);
+    }
 }
