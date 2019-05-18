@@ -2,7 +2,6 @@ package io.khasang.ba.entity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -35,10 +34,8 @@ public class CustomerRequestStage {
     @EqualsAndHashCode.Exclude
     private LocalDateTime updateTimestamp;
 
-    @OneToMany(mappedBy = "id")
-    @Column(name = "assigned_operator_id")
+    @OneToMany(fetch = FetchType.EAGER)
     private List<Operator> operators;
 
-    @NotBlank
     private String comment;
 }
