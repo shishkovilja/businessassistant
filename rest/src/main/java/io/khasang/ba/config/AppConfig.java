@@ -90,4 +90,14 @@ public class AppConfig {
     public CustomerDao customerDao() {
         return new CustomerDaoImpl(Customer.class);
     }
+
+    @Bean
+    public AddressDao addressDao() {
+        return new AddressDaoImpl(Address.class);
+    }
+
+    @Bean
+    public CategoryDao categoryDao() {
+        return new CategoryDaoImpl(Category.class);
+    }
 }
