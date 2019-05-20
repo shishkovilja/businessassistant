@@ -92,6 +92,11 @@ public class AppConfig {
     }
 
     @Bean
+    public CustomerRequestTypeDao customerRequestTypeDao() {
+        return new CustomerRequestTypeDaoImpl(CustomerRequestType.class);
+    }
+
+    @Bean
     public AddressDao addressDao() {
         return new AddressDaoImpl(Address.class);
     }
