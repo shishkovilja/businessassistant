@@ -7,8 +7,8 @@ import org.hibernate.annotations.NaturalId;
 import javax.persistence.*;
 
 /**
- * A customer request stage name entity class. Allows to group customer request stages by names. Has one-to-many
- * relation with {@link CustomerRequestStage}
+ * A customer request stage name entity class. Allows to group customer request stages by names, i.e.
+ * each {@link CustomerRequestStage} has a relation with this entity.
  */
 
 @Data
