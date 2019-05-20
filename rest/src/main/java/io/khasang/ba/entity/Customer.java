@@ -1,7 +1,7 @@
 package io.khasang.ba.entity;
 
 import org.hibernate.annotations.NaturalId;
-import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -18,17 +18,17 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @NotEmpty
+    @NotBlank
     @NaturalId
     private String login;
 
     @Column(name = "registration_date", columnDefinition = "TIMESTAMP")
     private LocalDateTime registrationTimestamp;
 
-    @NotEmpty
+    @NotBlank
     private String password;
 
-    @NotEmpty
+    @NotBlank
     @Column(unique = true)
     private String email;
 

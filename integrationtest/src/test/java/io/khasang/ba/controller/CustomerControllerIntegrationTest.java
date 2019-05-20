@@ -8,6 +8,7 @@ import org.springframework.http.*;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -74,63 +75,51 @@ public class CustomerControllerIntegrationTest {
     }
 
     /**
-     * Check not-null constraint for customer's login during addition process
+     * Check NotBlank(+ NotNull + NotEmpty) constraint for customer's login during addition process
      */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkAddWithNullLogin() {
-        Customer customerWithNullLogin = getMockCustomer();
-        customerWithNullLogin.setLogin(null);
-        getResponseEntityFromPostRequest(customerWithNullLogin);
+    @Test
+    public void checkAddWithBlankLogin() {
+
+        //NotNull + NotEmpty
+        addWithIncorrectField("login", null);
+        addWithIncorrectField("login", "");
+
+        //Check NotBlank (whitespaces and some other characters)
+        addWithIncorrectField("login", "   ");
+        addWithIncorrectField("login", "\t");
+        addWithIncorrectField("login", "\n");
     }
 
     /**
-     * Check not-empty constraint for customer's login during addition process
+     * Check NotBlank(+ NotNull + NotEmpty) constraint for customer's email during addition process
      */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkAddWithEmptyLogin() {
-        Customer customerWithEmptyLogin = getMockCustomer();
-        customerWithEmptyLogin.setLogin("");
-        getResponseEntityFromPostRequest(customerWithEmptyLogin);
+    @Test
+    public void checkAddWithBlankEmail() {
+
+        //NotNull + NotEmpty
+        addWithIncorrectField("email", null);
+        addWithIncorrectField("email", "");
+
+        //Check NotBlank (whitespaces and some other characters)
+        addWithIncorrectField("email", "   ");
+        addWithIncorrectField("email", "\t");
+        addWithIncorrectField("email", "\n");
     }
 
     /**
-     * Check not-null constraint for customer's email during addition process
+     * Check NotBlank(+ NotNull + NotEmpty) constraint for customer's password during addition process
      */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkAddWithNullEmail() {
-        Customer customerWithNullEmail = getMockCustomer();
-        customerWithNullEmail.setEmail(null);
-        getResponseEntityFromPostRequest(customerWithNullEmail);
-    }
+    @Test
+    public void checkAddWithBlankPassword() {
 
-    /**
-     * Check not-empty constraint for customer's email during addition process
-     */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkAddWithEmptyEmail() {
-        Customer customerWithEmptyEmail = getMockCustomer();
-        customerWithEmptyEmail.setEmail("");
-        getResponseEntityFromPostRequest(customerWithEmptyEmail);
-    }
+        //NotNull + NotEmpty
+        addWithIncorrectField("password", null);
+        addWithIncorrectField("password", "");
 
-    /**
-     * Check not-null constraint for customer's password during addition process
-     */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkAddWithNullPassword() {
-        Customer customerWithNullPassword = getMockCustomer();
-        customerWithNullPassword.setPassword(null);
-        getResponseEntityFromPostRequest(customerWithNullPassword);
-    }
-
-    /**
-     * Check not-empty constraint for customer's password during addition process
-     */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkAddWithEmptyPassword() {
-        Customer customerWithEmptyPassword = getMockCustomer();
-        customerWithEmptyPassword.setPassword("");
-        getResponseEntityFromPostRequest(customerWithEmptyPassword);
+        //Check NotBlank (whitespaces and some other characters)
+        addWithIncorrectField("password", "   ");
+        addWithIncorrectField("password", "\t");
+        addWithIncorrectField("password", "\n");
     }
 
     /**
@@ -201,43 +190,51 @@ public class CustomerControllerIntegrationTest {
     }
 
     /**
-     * Check not-null constraint for customer's email during updating process
+     * Check NotBlank(+ NotNull + NotEmpty) constraint for customer's login during updating process
      */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkUpdateWithNullEmail() {
-        Customer customer = getCreatedCustomer();
-        customer.setEmail(null);
-        putCustomerToUpdate(customer);
+    @Test
+    public void checkUpdateWithBlankLogin() {
+
+        //NotNull + NotEmpty
+        updateWithIncorrectField("login", null);
+        updateWithIncorrectField("login", "");
+
+        //Check NotBlank (whitespaces and some other characters)
+        updateWithIncorrectField("login", "   ");
+        updateWithIncorrectField("login", "\t");
+        updateWithIncorrectField("login", "\n");
     }
 
     /**
-     * Check not-empty constraint for customer's email during updating process
+     * Check NotBlank(+ NotNull + NotEmpty) constraint for customer's email during updating process
      */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkUpdateWithEmptyEmail() {
-        Customer customer = getCreatedCustomer();
-        customer.setEmail("");
-        putCustomerToUpdate(customer);
+    @Test
+    public void checkUpdateWithBlankEmail() {
+
+        //NotNull + NotEmpty
+        updateWithIncorrectField("email", null);
+        updateWithIncorrectField("email", "");
+
+        //Check NotBlank (whitespaces and some other characters)
+        updateWithIncorrectField("email", "   ");
+        updateWithIncorrectField("email", "\t");
+        updateWithIncorrectField("email", "\n");
     }
 
     /**
-     * Check not-null constraint for customer's password during updating process
+     * Check NotBlank(+ NotNull + NotEmpty) constraint for customer's password during updating process
      */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkUpdateWithNullPassword() {
-        Customer customer = getCreatedCustomer();
-        customer.setPassword(null);
-        putCustomerToUpdate(customer);
-    }
+    @Test
+    public void checkUpdateWithBlankPassword() {
 
-    /**
-     * Check not-empty constraint for customer's password during updating process
-     */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkUpdateWithEmptyPassword() {
-        Customer customer = getCreatedCustomer();
-        customer.setPassword("");
-        putCustomerToUpdate(customer);
+        //NotNull + NotEmpty
+        updateWithIncorrectField("password", null);
+        updateWithIncorrectField("password", "");
+
+        //Check NotBlank (whitespaces and some other characters)
+        updateWithIncorrectField("password", "   ");
+        updateWithIncorrectField("password", "\t");
+        updateWithIncorrectField("password", "\n");
     }
 
     /**
@@ -252,24 +249,65 @@ public class CustomerControllerIntegrationTest {
     }
 
     /**
-     * Utility method which deletes customer by id and retrieves customer entity from DELETE response body
+     * Utility method to check Customer entity addition with incorrect field (overriding mock value).
+     * Field is changed by Java reflections mechanisms. <br>
+     * Method checks that thrown exception is {@link HttpServerErrorException} with <em>Internal Server Error</em>
+     * status code in response. <br>
+     * <em>NOTICE: This behaviour will be changed after REST layer response codes regulation</em>
      *
-     * @param id Id of the customer which should be deleted
-     * @return Deleted customer
+     * @param fieldName      name of the field to override
+     * @param incorrectValue <em>incorrect value</em> used instead of mock value
      */
-    private Customer getDeletedCustomer(Long id) {
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Customer> responseEntity = restTemplate.exchange(
-                ROOT + DELETE_BY_ID,
-                HttpMethod.DELETE,
-                null,
-                Customer.class,
-                id
-        );
-        Customer deletedCustomer = responseEntity.getBody();
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertNotNull(deletedCustomer);
-        return deletedCustomer;
+    private <T> void addWithIncorrectField(String fieldName, T incorrectValue) {
+        try {
+            Customer mockCustomer = getMockCustomer();
+            setField(mockCustomer, fieldName, incorrectValue);
+            getResponseEntityFromPostRequest(mockCustomer);
+        } catch (IllegalAccessException | NoSuchFieldException e) {
+            fail(e.toString());
+        } catch (HttpServerErrorException e) {
+            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, e.getStatusCode());
+        }
+    }
+
+    /**
+     * Utility method to check Customer entity updating with incorrect field (overriding mock value).
+     * Field is changed by Java reflections mechanisms. <br>
+     * Method checks that thrown exception is {@link HttpServerErrorException} with <em>Internal Server Error</em>
+     * status code in response. <br>
+     * <em>NOTICE: This behaviour will be changed after REST layer response codes regulation</em>
+     *
+     * @param fieldName      name of the field to override
+     * @param incorrectValue <em>incorrect value</em> used instead of mock value
+     */
+    private <T> void updateWithIncorrectField(String fieldName, T incorrectValue) {
+        try {
+            Customer customer = getChangedCustomer(getCreatedCustomer());
+            setField(customer, fieldName, incorrectValue);
+            putCustomerToUpdate(customer);
+        } catch (IllegalAccessException | NoSuchFieldException e) {
+            fail(e.toString());
+        } catch (HttpServerErrorException e) {
+            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, e.getStatusCode());
+        }
+    }
+
+    /**
+     * Utility method to set a Customer's field via reflection mechanism
+     *
+     * @param customer   Customer instance to set field for
+     * @param fieldName  name of field (eg. "login" or "email")
+     * @param fieldValue field value
+     * @param <T>        type parameter of field
+     * @throws NoSuchFieldException   if field with specified fieldName not found
+     * @throws IllegalAccessException in case of access errors
+     */
+    private <T> void setField(Customer customer, String fieldName, T fieldValue)
+            throws NoSuchFieldException, IllegalAccessException {
+        Field declaredField = Customer.class.getDeclaredField(fieldName);
+        declaredField.setAccessible(true);
+        declaredField.set(customer, fieldValue);
+        declaredField.setAccessible(false);
     }
 
     /**
@@ -399,12 +437,33 @@ public class CustomerControllerIntegrationTest {
     }
 
     /**
+     * Utility method which deletes customer by id and retrieves customer entity from DELETE response body
+     *
+     * @param id Id of the customer which should be deleted
+     * @return Deleted customer
+     */
+    private Customer getDeletedCustomer(Long id) {
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<Customer> responseEntity = restTemplate.exchange(
+                ROOT + DELETE_BY_ID,
+                HttpMethod.DELETE,
+                null,
+                Customer.class,
+                id
+        );
+        Customer deletedCustomer = responseEntity.getBody();
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertNotNull(deletedCustomer);
+        return deletedCustomer;
+    }
+
+    /**
      * Static inner builder of customer
      */
     protected static class CustomerBuilder {
         private CustomerInformation customerInformation;
 
-        //Instance of buildabe Customer
+        //Instance of built Customer
         private Customer customer;
 
         public CustomerBuilder() {
