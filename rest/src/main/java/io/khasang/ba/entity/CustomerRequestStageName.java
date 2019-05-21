@@ -3,6 +3,7 @@ package io.khasang.ba.entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.NaturalId;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
 
@@ -21,7 +22,8 @@ public class CustomerRequestStageName {
     @EqualsAndHashCode.Exclude
     private Long id;
 
-    @NaturalId
+    @NotBlank
+    @NaturalId(mutable = true)
     private String name;
 
     private String description;

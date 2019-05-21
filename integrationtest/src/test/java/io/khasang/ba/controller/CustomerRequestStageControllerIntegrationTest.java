@@ -3,7 +3,6 @@ package io.khasang.ba.controller;
 import io.khasang.ba.controller.utility.MockFactory;
 import io.khasang.ba.entity.CustomerRequestStage;
 import org.junit.Test;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
@@ -32,7 +31,6 @@ public class CustomerRequestStageControllerIntegrationTest {
         getEntityById(
                 Long.MAX_VALUE,
                 CustomerRequestStage.class,
-                CUSTOMER_REQUEST_STAGE_ROOT + GET_BY_ID_PATH,
                 HttpStatus.NOT_FOUND);
     }
 
@@ -52,7 +50,6 @@ public class CustomerRequestStageControllerIntegrationTest {
         CustomerRequestStage receivedCustomerRequestStage = getEntityById(
                 createdCustomerRequestStage.getId(),
                 CustomerRequestStage.class,
-                CUSTOMER_REQUEST_STAGE_ROOT + GET_BY_ID_PATH,
                 HttpStatus.OK);
 
         assertEquals(createdCustomerRequestStage, receivedCustomerRequestStage);
@@ -73,19 +70,15 @@ public class CustomerRequestStageControllerIntegrationTest {
     public void checkGetAllCustomerRequestStages() {
 
         // Create list of entities
-        List<CustomerRequestStage> createdCustomerRequestStagesList = getCreatedEntitiesList(
-                MockFactory::getMockCustomerRequestStage,
-                TEST_ENTITIES_AMOUNT,
-                CUSTOMER_REQUEST_STAGE_ROOT + ADD_PATH,
-                HttpStatus.CREATED);
+        List<CustomerRequestStage> createdCustomerRequestStagesList =
+                getCreatedEntitiesList(
+                        CustomerRequestStage.class,
+                        TEST_ENTITIES_AMOUNT,
+                        HttpStatus.CREATED);
 
         // Receive all entities from REST
         List<CustomerRequestStage> allCustomerRequestStages =
-                getAllEntitiesList(
-                        new ParameterizedTypeReference<List<CustomerRequestStage>>() {
-                        },
-                        CUSTOMER_REQUEST_STAGE_ROOT + GET_ALL_PATH,
-                        HttpStatus.OK);
+                getAllEntitiesList(CustomerRequestStage.class, HttpStatus.OK);
 
         // Check last TEST_ENTITIES_AMOUNT and assert for equality
         List<CustomerRequestStage> receivedCustomerRequestStagesSubList =
@@ -109,7 +102,6 @@ public class CustomerRequestStageControllerIntegrationTest {
         CustomerRequestStage receivedCustomerRequestStage = getEntityById(
                 updatedCustomerRequestStage.getId(),
                 CustomerRequestStage.class,
-                CUSTOMER_REQUEST_STAGE_ROOT + GET_BY_ID_PATH,
                 HttpStatus.OK
         );
         assertNotNull(receivedCustomerRequestStage.getId());
@@ -126,13 +118,11 @@ public class CustomerRequestStageControllerIntegrationTest {
         getResponseFromEntityDeleteRequest(
                 createdCustomerRequestStage.getId(),
                 CustomerRequestStage.class,
-                CUSTOMER_REQUEST_STAGE_ROOT + DELETE_BY_ID_PATH,
                 HttpStatus.NO_CONTENT);
 
         assertNull(getEntityById(
                 createdCustomerRequestStage.getId(),
                 CustomerRequestStage.class,
-                CUSTOMER_REQUEST_STAGE_ROOT + GET_BY_ID_PATH,
                 HttpStatus.NOT_FOUND));
     }
 
@@ -147,7 +137,6 @@ public class CustomerRequestStageControllerIntegrationTest {
         LocalDateTime timeBeforeCreation = LocalDateTime.now();
         CustomerRequestStage createdCustomerRequestStage = getResponseFromEntityAddRequest(
                 customerRequestStage,
-                CUSTOMER_REQUEST_STAGE_ROOT + ADD_PATH,
                 HttpStatus.CREATED);
         LocalDateTime timeAfterCreation = LocalDateTime.now();
 
@@ -169,10 +158,10 @@ public class CustomerRequestStageControllerIntegrationTest {
         CustomerRequestStage createdCustomerRequestStage = getCreatedCustomerRequestStage();
 
         LocalDateTime timeBeforeUpdate = LocalDateTime.now();
-        CustomerRequestStage updatedCustomerRequestStage = getResponseFromEntityUpdateRequest(
-                getChangedMockCustomerRequestStage(createdCustomerRequestStage),
-                CUSTOMER_REQUEST_STAGE_ROOT + UPDATE_PATH,
-                HttpStatus.OK);
+        CustomerRequestStage updatedCustomerRequestStage =
+                getResponseFromEntityUpdateRequest(
+                        getChangedMockCustomerRequestStage(createdCustomerRequestStage),
+                        HttpStatus.OK);
         LocalDateTime timeAfterUpdate = LocalDateTime.now();
 
         assertEquals(createdCustomerRequestStage.getId(), updatedCustomerRequestStage.getId());
