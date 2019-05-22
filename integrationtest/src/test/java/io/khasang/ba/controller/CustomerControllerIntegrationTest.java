@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static io.khasang.ba.controller.utility.RestRequests.getEntityById;
 import static org.junit.Assert.*;
 
 /**
@@ -40,6 +41,15 @@ public class CustomerControllerIntegrationTest {
     private static final String GET_ALL = "/get/all";
     private static final String UPDATE = "/update";
     private static final String DELETE_BY_ID = "/delete/{id}";
+
+    /**
+     * Check, that {@link CustomerController#getCustomerById(long)} gives NOT FOUND HTTP response
+     * in the case of attempt to get nonexistent entity, i.e. entity with <em>nonexistent Id</em>.
+     */
+    @Test
+    public void checkGetNonExistentCustomer() {
+        getEntityById(Long.MAX_VALUE, Customer.class, HttpStatus.NOT_FOUND);
+    }
 
     /**
      * Check customer addition

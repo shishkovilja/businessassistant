@@ -1,5 +1,6 @@
 package io.khasang.ba.controller.utility;
 
+import io.khasang.ba.entity.Customer;
 import io.khasang.ba.entity.CustomerRequestStage;
 import io.khasang.ba.entity.CustomerRequestStageName;
 import io.khasang.ba.entity.Operator;
@@ -37,6 +38,7 @@ public final class RestRequests {
     public static String REST_ROOT = "http://localhost:8080/";
 
     // Roots of REST resources
+    public static final String CUSTOMER_ROOT = REST_ROOT + "customer";
     public static final String CUSTOMER_REQUEST_STAGE_ROOT = REST_ROOT + "customer_request_stage";
     public static final String CUSTOMER_REQUEST_STAGE_NAME_ROOT = REST_ROOT + "customer_request_stage_name";
     public static final String OPERATOR_ROOT = REST_ROOT + "operator";
@@ -53,6 +55,7 @@ public final class RestRequests {
      * of the REST resource, because it will be detected automatically
      */
     public static final Map<Class<?>, String> restRootsMap = Collections.unmodifiableMap(new HashMap<Class<?>, String>() {{
+        put(Customer.class, CUSTOMER_ROOT);
         put(CustomerRequestStage.class, CUSTOMER_REQUEST_STAGE_ROOT);
         put(CustomerRequestStageName.class, CUSTOMER_REQUEST_STAGE_NAME_ROOT);
         put(Operator.class, OPERATOR_ROOT);
