@@ -125,6 +125,8 @@ public class CustomerRequestStageNameControllerIntegrationTest {
                 HttpStatus.NOT_FOUND));
     }
 
+    // Addition constraints
+
     /**
      * Check unique constraint for <em>name</em> field while adding {@link CustomerRequestStageName}
      */
@@ -146,6 +148,8 @@ public class CustomerRequestStageNameControllerIntegrationTest {
         addWithIncorrectField("name", "\n");
     }
 
+    // Update constraints
+
     /**
      * Check unique constraint for <em>name</em> while updating {@link CustomerRequestStageName}
      */
@@ -158,7 +162,7 @@ public class CustomerRequestStageNameControllerIntegrationTest {
      * Check not blank constraint for <em>name</em> while updating {@link CustomerRequestStageName}
      */
     @Test
-    public void checkNotBlankNameConstraintForName_whenCustomerRequestStageUpdate() {
+    public void checkNotBlankConstraintForName_whenCustomerRequestStageUpdate() {
         updateWithIncorrectField("name", null);
         updateWithIncorrectField("name", "");
         updateWithIncorrectField("name", " ");
@@ -166,6 +170,8 @@ public class CustomerRequestStageNameControllerIntegrationTest {
         updateWithIncorrectField("name", "\t");
         updateWithIncorrectField("name", "\n");
     }
+
+    // Utility methods
 
     /**
      * Create mock {@link CustomerRequestStageName} instance, and add (i.e. POST) it to a REST resource
