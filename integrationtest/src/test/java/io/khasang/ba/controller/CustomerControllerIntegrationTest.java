@@ -10,12 +10,12 @@ import org.springframework.web.client.RestTemplate;
 
 import java.lang.reflect.Field;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static io.khasang.ba.controller.utility.RestRequests.getEntityById;
+import static io.khasang.ba.controller.utility.MockFactory.getMockCustomer;
+import static io.khasang.ba.controller.utility.RestRequests.*;
 import static org.junit.Assert.*;
 
 /**
@@ -248,14 +248,22 @@ public class CustomerControllerIntegrationTest {
     }
 
     /**
-     * Check of customer deletion
+     * Check {@link CustomerController#deleteCustomer(long)}, i.e. HTTP method
+     * DELETE, used to delete an {@link Customer} entity on REST resource
      */
     @Test
     public void checkCustomerDelete() {
-        Customer customer = getCreatedCustomer();
-        Customer deletedCustomer = getDeletedCustomer(customer.getId());
-        assertEquals(customer, deletedCustomer);
-        assertNull(getCustomerById(customer.getId()));
+        Customer createdCustomer = getCreatedCustomer();
+
+        getResponseFromEntityDeleteRequest(
+                createdCustomer.getId(),
+                Customer.class,
+                HttpStatus.NO_CONTENT);
+
+        assertNull(getEntityById(
+                createdCustomer.getId(),
+                Customer.class,
+                HttpStatus.NOT_FOUND));
     }
 
     /**
@@ -388,49 +396,20 @@ public class CustomerControllerIntegrationTest {
     }
 
     /**
-     * Get created test customer entity from POST response during customer creation procedure. Instead of creating {@link Customer}
-     * instance by constructor, this method returns instance from response, thus created customer contains table identifier
+     * Create mock {@link Customer} instance, and add (i.e. POST) it to a REST resource
      *
-     * @return Instance of {@link Customer} with generated identifier
+     * @return added to REST resource entity
      */
     private Customer getCreatedCustomer() {
         Customer customer = getMockCustomer();
 
-        LocalDateTime timeBeforeCreation = LocalDateTime.now();
-        ResponseEntity<Customer> responseEntity = getResponseEntityFromPostRequest(customer);
-        Customer createdCustomer = responseEntity.getBody();
-        LocalDateTime timeAfterCreation = LocalDateTime.now();
+        Customer createdCustomer =
+                getResponseFromEntityAddRequest(customer, HttpStatus.CREATED);
 
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertNotNull(createdCustomer);
         assertNotNull(createdCustomer.getId());
         assertEquals(customer, createdCustomer);
-        assertEquals(-1, timeBeforeCreation.compareTo(createdCustomer.getRegistrationTimestamp()));
-        assertEquals(1, timeAfterCreation.compareTo(createdCustomer.getRegistrationTimestamp()));
+
         return createdCustomer;
-    }
-
-    /**
-     * Create mock {@link Customer} instance
-     *
-     * @return mock customer instance
-     */
-    private Customer getMockCustomer() {
-        Customer customer = new Customer();
-        CustomerInformation customerInformation = new CustomerInformation();
-
-        customer.setLogin(TEST_CUSTOMER_LOGIN_PREFIX + UUID.randomUUID().toString());
-        customer.setPassword(TEST_CUSTOMER_RAW_PASSWORD);
-        customer.setEmail(UUID.randomUUID().toString() + TEST_CUSTOMER_EMAIL_SUFFIX);
-        customer.setCustomerInformation(customerInformation);
-
-        customerInformation.setFullName(TEST_CUSTOMER_FULL_NAME);
-        customerInformation.setBirthDate(TEST_CUSTOMER_BIRTHDATE);
-        customerInformation.setCountry(TEST_CUSTOMER_COUNTRY);
-        customerInformation.setCity(TEST_CUSTOMER_CITY);
-        customerInformation.setAbout(TEST_CUSTOMER_ABOUT);
-
-        return customer;
     }
 
     /**

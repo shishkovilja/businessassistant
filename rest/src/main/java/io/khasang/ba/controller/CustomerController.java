@@ -3,6 +3,7 @@ package io.khasang.ba.controller;
 import io.khasang.ba.entity.Customer;
 import io.khasang.ba.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +21,7 @@ public class CustomerController {
     private CustomerService CustomerService;
 
     @PostMapping(value = "/add", consumes = "application/json;charset=utf-8")
+    @ResponseStatus(HttpStatus.CREATED)
     public Customer addCustomer(@RequestBody Customer newCustomer) {
         return CustomerService.addCustomer(newCustomer);
     }
@@ -42,7 +44,8 @@ public class CustomerController {
     }
 
     @DeleteMapping(value = "/delete/{id}")
-    public Customer deleteCustomer(@PathVariable(value = "id") long id) {
-        return CustomerService.deleteCustomer(id);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteCustomer(@PathVariable(value = "id") long id) {
+        CustomerService.deleteCustomer(id);
     }
 }

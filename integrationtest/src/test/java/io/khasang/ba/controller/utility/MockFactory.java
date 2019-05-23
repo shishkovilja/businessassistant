@@ -71,10 +71,9 @@ public final class MockFactory {
         customer.setCustomerInformation(customerInformation);
 
         customerInformation.setFullName(TEST_CUSTOMER_FULL_NAME_PREFIX + UUID.randomUUID().toString());
-        customerInformation.setBirthDate(LocalDate.of(
-                1930 + random.nextInt(70),
-                1 + random.nextInt(12),
-                1 + random.nextInt(30)));
+        customerInformation.setBirthDate(LocalDate.ofYearDay(
+                1930 + random.nextInt(71),
+                1 + random.nextInt(365)));
         customerInformation.setCountry(TEST_CUSTOMER_COUNTRY_PREFIX + UUID.randomUUID().toString());
         customerInformation.setCity(TEST_CUSTOMER_CITY_PREFIX + UUID.randomUUID().toString());
         customerInformation.setAbout(TEST_CUSTOMER_ABOUT_PREFIX + UUID.randomUUID().toString());
