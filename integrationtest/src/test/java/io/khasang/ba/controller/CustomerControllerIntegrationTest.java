@@ -1,13 +1,9 @@
 package io.khasang.ba.controller;
 
 import io.khasang.ba.entity.Customer;
-import io.khasang.ba.entity.CustomerInformation;
 import org.junit.Test;
-import org.springframework.http.*;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpStatus;
 
-import java.lang.reflect.Field;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,25 +16,6 @@ import static org.junit.Assert.*;
  * Integration test for Customer REST layer
  */
 public class CustomerControllerIntegrationTest {
-    //Mock data configuration
-    private static final String TEST_CUSTOMER_LOGIN_PREFIX = "TEST_CUSTOMER_";
-    private static final String TEST_CUSTOMER_RAW_PASSWORD = "123tEsT#";
-    private static final String TEST_CUSTOMER_EMAIL_SUFFIX = "@ba.khasang.io";
-    private static final String TEST_CUSTOMER_FULL_NAME = "Ivan Petrov";
-    private static final LocalDate TEST_CUSTOMER_BIRTHDATE = LocalDate.of(1986, 8, 26);
-    private static final String TEST_CUSTOMER_COUNTRY = "Russia";
-    private static final String TEST_CUSTOMER_CITY = "Saint Petersburg";
-    private static final String TEST_CUSTOMER_ABOUT = "Another one mock test customer";
-
-    //Amount of test entities
-    private static final int TEST_ENTITIES_COUNT = 30;
-
-    private static final String ROOT = "http://localhost:8080/customer";
-    private static final String ADD = "/add";
-    private static final String GET_BY_ID = "/get/{id}";
-    private static final String GET_ALL = "/get/all";
-    private static final String UPDATE = "/update";
-    private static final String DELETE_BY_ID = "/delete/{id}";
 
     /**
      * Check, that {@link CustomerController#getCustomerById(long)} gives NOT FOUND HTTP response
@@ -271,71 +248,6 @@ public class CustomerControllerIntegrationTest {
     }
 
     // Utility methods
-
-    /**
-     * Utility method to set a Customer's field via reflection mechanism
-     *
-     * @param customer   Customer instance to set field for
-     * @param fieldName  name of field (eg. "login" or "email")
-     * @param fieldValue field value
-     * @param <T>        type parameter of field
-     * @throws NoSuchFieldException   if field with specified fieldName not found
-     * @throws IllegalAccessException in case of access errors
-     */
-    private <T> void setField(Customer customer, String fieldName, T fieldValue)
-            throws NoSuchFieldException, IllegalAccessException {
-        Field declaredField = Customer.class.getDeclaredField(fieldName);
-        declaredField.setAccessible(true);
-        declaredField.set(customer, fieldValue);
-        declaredField.setAccessible(false);
-    }
-
-    /**
-     * Put customer for update
-     *
-     * @param customer Customer, which should be updated on service
-     */
-    private void putCustomerToUpdate(Customer customer) {
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-        HttpEntity<Customer> httpEntity = new HttpEntity<>(customer, httpHeaders);
-
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Customer> responseEntity = restTemplate.exchange(
-                ROOT + UPDATE,
-                HttpMethod.PUT,
-                httpEntity,
-                Customer.class
-        );
-
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertNotNull(responseEntity.getBody());
-    }
-
-    /**
-     * Change users field for further update
-     *
-     * @param oldCustomer customer instance which updated {@link Customer}
-     * @return updated customer
-     */
-    private Customer getChangedCustomer(Customer oldCustomer) {
-        Customer newCustomer = new Customer();
-        CustomerInformation customerInformation = new CustomerInformation();
-
-        newCustomer.setId(oldCustomer.getId());
-        newCustomer.setLogin(oldCustomer.getLogin());
-        newCustomer.setPassword("new_password");
-        newCustomer.setEmail(UUID.randomUUID().toString() + "@newmail.com");
-        newCustomer.setCustomerInformation(customerInformation);
-
-        customerInformation.setFullName("New Full Name");
-        customerInformation.setBirthDate(LocalDate.of(1990, 10, 15));
-        customerInformation.setCountry("USA");
-        customerInformation.setCity("New York");
-        customerInformation.setAbout("new_about");
-
-        return newCustomer;
-    }
 
     /**
      * Create mock {@link Customer} instance, and add (i.e. POST) it to a REST resource
