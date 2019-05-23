@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import static io.khasang.ba.controller.utility.MockFactory.getChangedMockCustomer;
 import static io.khasang.ba.controller.utility.MockFactory.getMockCustomer;
 import static io.khasang.ba.controller.utility.RestRequests.*;
 import static org.junit.Assert.*;
@@ -105,17 +106,24 @@ public class CustomerControllerIntegrationTest {
     }
 
     /**
-     * Check of customer entity update via PUT request
+     * Check {@link CustomerController#updateCustomer(Customer)}, i.e. HTTP method
+     * PUT, used to update an {@link Customer} entity on REST resource
      */
     @Test
     public void checkUpdateCustomer() {
-        Customer customer = getChangedCustomer(getCreatedCustomer());
-        putCustomerToUpdate(customer);
 
-        Customer updatedCustomer = getCustomerById(customer.getId());
-        assertNotNull(updatedCustomer);
-        assertNotNull(updatedCustomer.getId());
-        assertEquals(customer, updatedCustomer);
+        // POST, then UPDATE in REST
+        Customer updatedCustomer = getUpdatedCustomer();
+
+        //Get it from REST, check id and assertEquals
+        Customer receivedCustomer =
+                getEntityById(
+                        updatedCustomer.getId(),
+                        Customer.class,
+                        HttpStatus.OK);
+
+        assertNotNull(receivedCustomer.getId());
+        assertEquals(updatedCustomer, receivedCustomer);
     }
 
     /**
@@ -405,6 +413,25 @@ public class CustomerControllerIntegrationTest {
                 httpEntity,
                 Customer.class
         );
+    }
+
+    /**
+     * Update existing {@link Customer} entity at REST resource. Firstly, add new mock entity and then
+     * PUT updated entity to REST resource
+     *
+     * @return updated at REST resource instance of entity
+     */
+    private Customer getUpdatedCustomer() {
+        Customer createdCustomer = getCreatedCustomer();
+
+        Customer updatedCustomer =
+                getResponseFromEntityUpdateRequest(
+                        getChangedMockCustomer(createdCustomer),
+                        HttpStatus.OK);
+
+        assertEquals(createdCustomer.getId(), updatedCustomer.getId());
+
+        return updatedCustomer;
     }
 
     /**
