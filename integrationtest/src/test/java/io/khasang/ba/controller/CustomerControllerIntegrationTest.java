@@ -396,26 +396,6 @@ public class CustomerControllerIntegrationTest {
     }
 
     /**
-     * Add customer entity via POST request
-     *
-     * @param customer {@link Customer} instance, which should be added via POST request
-     * @return {@link ResponseEntity} containing response data
-     */
-    private ResponseEntity<Customer> getResponseEntityFromPostRequest(Customer customer) {
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-        HttpEntity<Customer> httpEntity = new HttpEntity<>(customer, httpHeaders);
-
-        RestTemplate restTemplate = new RestTemplate();
-        return restTemplate.exchange(
-                ROOT + ADD,
-                HttpMethod.POST,
-                httpEntity,
-                Customer.class
-        );
-    }
-
-    /**
      * Update existing {@link Customer} entity at REST resource. Firstly, add new mock entity and then
      * PUT updated entity to REST resource
      *
