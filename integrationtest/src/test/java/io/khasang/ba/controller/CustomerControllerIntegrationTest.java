@@ -52,13 +52,24 @@ public class CustomerControllerIntegrationTest {
     }
 
     /**
-     * Check customer addition
+     * Check both {@link CustomerController#getCustomerById(long)} and
+     * {@link CustomerController#addCustomer(Customer)} methods,
+     * i.e. HTTP methods GET and POST, providing possibilities to get an {@link Customer} entity
+     * from REST resource and to add it to the resource.
      */
     @Test
     public void checkAddCustomer() {
+
+        //POST to REST
         Customer createdCustomer = getCreatedCustomer();
-        Customer receivedCustomer = getCustomerById(createdCustomer.getId());
-        assertNotNull(receivedCustomer);
+
+        // GET from REST
+        Customer receivedCustomer =
+                getEntityById(
+                        createdCustomer.getId(),
+                        Customer.class,
+                        HttpStatus.OK);
+
         assertEquals(createdCustomer, receivedCustomer);
     }
 
