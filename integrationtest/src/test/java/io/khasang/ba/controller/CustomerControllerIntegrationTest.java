@@ -442,25 +442,4 @@ public class CustomerControllerIntegrationTest {
                 Customer.class
         );
     }
-
-    /**
-     * Utility method which deletes customer by id and retrieves customer entity from DELETE response body
-     *
-     * @param id Id of the customer which should be deleted
-     * @return Deleted customer
-     */
-    private Customer getDeletedCustomer(Long id) {
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Customer> responseEntity = restTemplate.exchange(
-                ROOT + DELETE_BY_ID,
-                HttpMethod.DELETE,
-                null,
-                Customer.class,
-                id
-        );
-        Customer deletedCustomer = responseEntity.getBody();
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertNotNull(deletedCustomer);
-        return deletedCustomer;
-    }
 }
