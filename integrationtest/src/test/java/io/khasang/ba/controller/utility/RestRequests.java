@@ -281,6 +281,33 @@ public final class RestRequests {
     }
 
     /**
+     * <p>Check update of an entity with incorrect field (with incorrect value or with violating such constraints, as NotNull, Unique)
+     * at corresponding REST resource, which path is detected by class by means of {@link #restRootsMap}.
+     * Field value is set via java reflection mechanisms.</p>
+     * <p>Difference with {@link #updateEntityWithIncorrectField(Class, String, Object, HttpStatus)} consist in that this method
+     * performs update for <em>properly created entity from REST resource</em>.
+     * <p>In a case of absence of {@link HttpClientErrorException} or {@link HttpServerErrorException}, method fails with assertion error
+     * <em>NOTICE: This behaviour will be changed after REST layer response codes regulation</em></p>
+     *
+     * @param entity                  an entity class
+     * @param fieldName               a field, which should be changed
+     * @param incorrectValue          incorrect value for changing field
+     * @param expectedErrorStatusCode expected HTTP status code error
+     * @param <T>                     type of the entity <em>both of request and response</em>
+     * @param <V>                     type of the field
+     */
+    public static <T, V> void updateEntityWithIncorrectField(T entity, String fieldName, V incorrectValue,
+                                                             HttpStatus expectedErrorStatusCode) {
+        sendEntityWithIncorrectField(
+                entity,
+                fieldName,
+                incorrectValue,
+                restRootsMap.get(entity.getClass()) + UPDATE_PATH,
+                HttpMethod.PUT,
+                expectedErrorStatusCode);
+    }
+
+    /**
      * Check sending of an entity with incorrect field (with incorrect value or with violating such constraints, as NotNull, Unique)
      * to a given REST resource. Field is changed via java reflection mechanisms. <br>
      * Method checks for expected exception and, in a case of its' absence, it will fail with assertion error

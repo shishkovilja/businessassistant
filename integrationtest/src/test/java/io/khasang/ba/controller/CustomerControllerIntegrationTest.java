@@ -4,7 +4,6 @@ import io.khasang.ba.entity.Customer;
 import io.khasang.ba.entity.CustomerInformation;
 import org.junit.Test;
 import org.springframework.http.*;
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.lang.reflect.Field;
@@ -127,75 +126,6 @@ public class CustomerControllerIntegrationTest {
     }
 
     /**
-     * Check customer's login update constraint during updating process
-     */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkLoginUpdate() {
-        Customer customer = getCreatedCustomer();
-        customer.setLogin(TEST_CUSTOMER_LOGIN_PREFIX + UUID.randomUUID().toString());
-        putCustomerToUpdate(customer);
-    }
-
-    /**
-     * Check unique constraint for customer's e-mail during updating process
-     */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkUpdateEmailUniqueConstraint() {
-        Customer customer1 = getCreatedCustomer();
-        Customer customer2 = getCreatedCustomer();
-        customer2.setEmail(customer1.getEmail());
-        putCustomerToUpdate(customer2);
-    }
-
-    /**
-     * Check NotBlank(+ NotNull + NotEmpty) constraint for customer's login during updating process
-     */
-    @Test
-    public void checkUpdateWithBlankLogin() {
-
-        //NotNull + NotEmpty
-        updateWithIncorrectField("login", null);
-        updateWithIncorrectField("login", "");
-
-        //Check NotBlank (whitespaces and some other characters)
-        updateWithIncorrectField("login", "   ");
-        updateWithIncorrectField("login", "\t");
-        updateWithIncorrectField("login", "\n");
-    }
-
-    /**
-     * Check NotBlank(+ NotNull + NotEmpty) constraint for customer's email during updating process
-     */
-    @Test
-    public void checkUpdateWithBlankEmail() {
-
-        //NotNull + NotEmpty
-        updateWithIncorrectField("email", null);
-        updateWithIncorrectField("email", "");
-
-        //Check NotBlank (whitespaces and some other characters)
-        updateWithIncorrectField("email", "   ");
-        updateWithIncorrectField("email", "\t");
-        updateWithIncorrectField("email", "\n");
-    }
-
-    /**
-     * Check NotBlank(+ NotNull + NotEmpty) constraint for customer's password during updating process
-     */
-    @Test
-    public void checkUpdateWithBlankPassword() {
-
-        //NotNull + NotEmpty
-        updateWithIncorrectField("password", null);
-        updateWithIncorrectField("password", "");
-
-        //Check NotBlank (whitespaces and some other characters)
-        updateWithIncorrectField("password", "   ");
-        updateWithIncorrectField("password", "\t");
-        updateWithIncorrectField("password", "\n");
-    }
-
-    /**
      * Check {@link CustomerController#deleteCustomer(long)}, i.e. HTTP method
      * DELETE, used to delete an {@link Customer} entity on REST resource
      */
@@ -271,27 +201,76 @@ public class CustomerControllerIntegrationTest {
         addWithIncorrectField("password", "\n");
     }
 
+    // Update constraints
+
     /**
-     * Utility method to check Customer entity updating with incorrect field (overriding mock value).
-     * Field is changed by Java reflections mechanisms. <br>
-     * Method checks that thrown exception is {@link HttpServerErrorException} with <em>Internal Server Error</em>
-     * status code in response. <br>
-     * <em>NOTICE: This behaviour will be changed after REST layer response codes regulation</em>
-     *
-     * @param fieldName      name of the field to override
-     * @param incorrectValue <em>incorrect value</em> used instead of mock value
+     * Check immutable constraint for <em>login</em> while updating {@link Customer}
      */
-    private <T> void updateWithIncorrectField(String fieldName, T incorrectValue) {
-        try {
-            Customer customer = getChangedCustomer(getCreatedCustomer());
-            setField(customer, fieldName, incorrectValue);
-            putCustomerToUpdate(customer);
-        } catch (IllegalAccessException | NoSuchFieldException e) {
-            fail(e.toString());
-        } catch (HttpServerErrorException e) {
-            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, e.getStatusCode());
-        }
+    @Test
+    public void checkImmutableConstraintForLogin_whenCustomerRequestStageUpdate() {
+        updateEntityWithIncorrectField(
+                getCreatedCustomer(),
+                "login",
+                UUID.randomUUID().toString(),
+                HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    /**
+     * Check unique constraint for <em>login</em> while updating {@link Customer}
+     */
+    @Test
+    public void checkUniqueConstraintForLogin_whenCustomerRequestStageUpdate() {
+        updateWithIncorrectField("login", getCreatedCustomer().getLogin());
+    }
+
+    /**
+     * Check unique constraint for <em>email</em> while updating {@link Customer}
+     */
+    @Test
+    public void checkUniqueConstraintForEmail_whenCustomerRequestStageUpdate() {
+        updateWithIncorrectField("email", getCreatedCustomer().getEmail());
+    }
+
+    /**
+     * Check not blank constraint for <em>login</em> while updating {@link Customer}
+     */
+    @Test
+    public void checkNotBlankConstraintForLogin_whenCustomerRequestStageUpdate() {
+        updateWithIncorrectField("login", null);
+        updateWithIncorrectField("login", "");
+        updateWithIncorrectField("login", " ");
+        updateWithIncorrectField("login", "  ");
+        updateWithIncorrectField("login", "\t");
+        updateWithIncorrectField("login", "\n");
+    }
+
+    /**
+     * Check not blank constraint for <em>email</em> while updating {@link Customer}
+     */
+    @Test
+    public void checkNotBlankConstraintForEmail_whenCustomerRequestStageUpdate() {
+        updateWithIncorrectField("email", null);
+        updateWithIncorrectField("email", "");
+        updateWithIncorrectField("email", " ");
+        updateWithIncorrectField("email", "  ");
+        updateWithIncorrectField("email", "\t");
+        updateWithIncorrectField("email", "\n");
+    }
+
+    /**
+     * Check not blank constraint for <em>password</em> while updating {@link Customer}
+     */
+    @Test
+    public void checkNotBlankConstraintForPassword_whenCustomerRequestStageUpdate() {
+        updateWithIncorrectField("password", null);
+        updateWithIncorrectField("password", "");
+        updateWithIncorrectField("password", " ");
+        updateWithIncorrectField("password", "  ");
+        updateWithIncorrectField("password", "\t");
+        updateWithIncorrectField("password", "\n");
+    }
+
+    // Utility methods
 
     /**
      * Utility method to set a Customer's field via reflection mechanism
@@ -405,5 +384,18 @@ public class CustomerControllerIntegrationTest {
      */
     private <V> void addWithIncorrectField(String fieldName, V incorrectValue) {
         addEntityWithIncorrectField(Customer.class, fieldName, incorrectValue, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * Utility method for checking of some constraints during <em>entity update</em>, which has simpler signature
+     * with reduced number of parameters. It could be used instead of
+     * direct call of {@link io.khasang.ba.controller.utility.RestRequests#updateEntityWithIncorrectField(Class, String, Object, HttpStatus)}.
+     *
+     * @param fieldName      field, which should be set with incorrect value
+     * @param incorrectValue incorrect value
+     * @param <V>            type of the field
+     */
+    private <V> void updateWithIncorrectField(String fieldName, V incorrectValue) {
+        updateEntityWithIncorrectField(Customer.class, fieldName, incorrectValue, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
