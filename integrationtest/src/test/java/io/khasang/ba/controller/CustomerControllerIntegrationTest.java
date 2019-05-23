@@ -312,26 +312,6 @@ public class CustomerControllerIntegrationTest {
     }
 
     /**
-     * Method for customer getting by id
-     *
-     * @param id Id in table of customers
-     * @return Found {@link Customer} instance
-     */
-    private Customer getCustomerById(Long id) {
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Customer> responseEntity = restTemplate.exchange(
-                ROOT + GET_BY_ID,
-                HttpMethod.GET,
-                null,
-                Customer.class,
-                id
-        );
-        Customer receivedCustomer = responseEntity.getBody();
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        return receivedCustomer;
-    }
-
-    /**
      * Put customer for update
      *
      * @param customer Customer, which should be updated on service
