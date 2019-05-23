@@ -3,14 +3,12 @@ package io.khasang.ba.controller;
 import io.khasang.ba.entity.Customer;
 import io.khasang.ba.entity.CustomerInformation;
 import org.junit.Test;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.lang.reflect.Field;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -74,35 +72,36 @@ public class CustomerControllerIntegrationTest {
     }
 
     /**
-     * Checks sequential addition of certain amount of customers addition and getting. Amount is set in
-     * {@link #TEST_ENTITIES_COUNT} constant
+     * Check {@link CustomerController#getAllCustomers()} method, i.e. HTTP method GET, used to
+     * get a list of {@link Customer} entities from REST resource
+     * entities.<br>
+     * <p>First of all, continuous addition of {@link Customer} entities with amount equal to
+     * {@link io.khasang.ba.controller.utility.RestRequests#TEST_ENTITIES_AMOUNT} is performed.
+     * Secondly, top TEST_ENTITIES_AMOUNT of entities, obtained from response body, received from REST-resource, placed at
+     * {@link io.khasang.ba.controller.utility.RestRequests#GET_ALL_PATH}), compared with list of
+     * previously added entities.
+     * </p>
      */
     @Test
     public void checkGetAllCustomers() {
-        List<Customer> createdCustomers = new ArrayList<>(TEST_ENTITIES_COUNT);
-        for (int i = 0; i < TEST_ENTITIES_COUNT; i++) {
-            createdCustomers.add(getCreatedCustomer());
-        }
 
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<List<Customer>> responseEntity = restTemplate.exchange(
-                ROOT + GET_ALL,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<List<Customer>>() {
-                }
-        );
-        List<Customer> allReceivedCustomers = responseEntity.getBody();
+        // Create list of entities
+        List<Customer> createdCustomersList =
+                getCreatedEntitiesList(
+                        Customer.class,
+                        TEST_ENTITIES_AMOUNT,
+                        HttpStatus.CREATED);
 
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertNotNull(allReceivedCustomers);
-        assertFalse(allReceivedCustomers.isEmpty());
+        // Receive all entities from REST
+        List<Customer> allCustomers =
+                getAllEntitiesList(Customer.class, HttpStatus.OK);
 
+        // Check last TEST_ENTITIES_AMOUNT and assert for equality
         List<Customer> receivedCustomersSubList =
-                allReceivedCustomers.subList(allReceivedCustomers.size() - TEST_ENTITIES_COUNT, allReceivedCustomers.size());
-        for (int i = 0; i < TEST_ENTITIES_COUNT; i++) {
-            assertEquals(createdCustomers.get(i), receivedCustomersSubList.get(i));
-        }
+                allCustomers.subList(allCustomers.size() - TEST_ENTITIES_AMOUNT,
+                        allCustomers.size());
+
+        assertEquals(createdCustomersList, receivedCustomersSubList);
     }
 
     /**

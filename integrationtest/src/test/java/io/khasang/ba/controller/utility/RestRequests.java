@@ -66,6 +66,8 @@ public final class RestRequests {
      */
     public static final Map<Class<?>, ParameterizedTypeReference<? extends List>> typeReferencesMap =
             new HashMap<Class<?>, ParameterizedTypeReference<? extends List>>() {{
+                put(Customer.class, new ParameterizedTypeReference<List<Customer>>() {
+                });
                 put(CustomerRequestStage.class, new ParameterizedTypeReference<List<CustomerRequestStage>>() {
                 });
                 put(CustomerRequestStageName.class, new ParameterizedTypeReference<List<CustomerRequestStageName>>() {
