@@ -74,76 +74,6 @@ public class CustomerControllerIntegrationTest {
     }
 
     /**
-     * Check unique login constraint for customer's login during addition process
-     */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkAddLoginUniqueConstraint() {
-        Customer customer = getCreatedCustomer();
-        Customer customerWithSameLogin = getMockCustomer();
-        customerWithSameLogin.setLogin(customer.getLogin());
-        getResponseEntityFromPostRequest(customerWithSameLogin);
-    }
-
-    /**
-     * Check unique constraint for customer's e-mail during addition process
-     */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkAddEmailUniqueConstraint() {
-        Customer customer = getCreatedCustomer();
-        Customer customerWithSameEmail = getMockCustomer();
-        customerWithSameEmail.setEmail(customer.getEmail());
-        getResponseEntityFromPostRequest(customerWithSameEmail);
-    }
-
-    /**
-     * Check NotBlank(+ NotNull + NotEmpty) constraint for customer's login during addition process
-     */
-    @Test
-    public void checkAddWithBlankLogin() {
-
-        //NotNull + NotEmpty
-        addWithIncorrectField("login", null);
-        addWithIncorrectField("login", "");
-
-        //Check NotBlank (whitespaces and some other characters)
-        addWithIncorrectField("login", "   ");
-        addWithIncorrectField("login", "\t");
-        addWithIncorrectField("login", "\n");
-    }
-
-    /**
-     * Check NotBlank(+ NotNull + NotEmpty) constraint for customer's email during addition process
-     */
-    @Test
-    public void checkAddWithBlankEmail() {
-
-        //NotNull + NotEmpty
-        addWithIncorrectField("email", null);
-        addWithIncorrectField("email", "");
-
-        //Check NotBlank (whitespaces and some other characters)
-        addWithIncorrectField("email", "   ");
-        addWithIncorrectField("email", "\t");
-        addWithIncorrectField("email", "\n");
-    }
-
-    /**
-     * Check NotBlank(+ NotNull + NotEmpty) constraint for customer's password during addition process
-     */
-    @Test
-    public void checkAddWithBlankPassword() {
-
-        //NotNull + NotEmpty
-        addWithIncorrectField("password", null);
-        addWithIncorrectField("password", "");
-
-        //Check NotBlank (whitespaces and some other characters)
-        addWithIncorrectField("password", "   ");
-        addWithIncorrectField("password", "\t");
-        addWithIncorrectField("password", "\n");
-    }
-
-    /**
      * Checks sequential addition of certain amount of customers addition and getting. Amount is set in
      * {@link #TEST_ENTITIES_COUNT} constant
      */
@@ -277,26 +207,61 @@ public class CustomerControllerIntegrationTest {
                 HttpStatus.NOT_FOUND));
     }
 
+    //Addition constraints
+
     /**
-     * Utility method to check Customer entity addition with incorrect field (overriding mock value).
-     * Field is changed by Java reflections mechanisms. <br>
-     * Method checks that thrown exception is {@link HttpServerErrorException} with <em>Internal Server Error</em>
-     * status code in response. <br>
-     * <em>NOTICE: This behaviour will be changed after REST layer response codes regulation</em>
-     *
-     * @param fieldName      name of the field to override
-     * @param incorrectValue <em>incorrect value</em> used instead of mock value
+     * Check unique constraint for <em>name</em> field while adding {@link Customer}
      */
-    private <T> void addWithIncorrectField(String fieldName, T incorrectValue) {
-        try {
-            Customer mockCustomer = getMockCustomer();
-            setField(mockCustomer, fieldName, incorrectValue);
-            getResponseEntityFromPostRequest(mockCustomer);
-        } catch (IllegalAccessException | NoSuchFieldException e) {
-            fail(e.toString());
-        } catch (HttpServerErrorException e) {
-            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, e.getStatusCode());
-        }
+    @Test
+    public void checkUniqueConstraintForLogin_whenCustomerRequestStageAdd() {
+        addWithIncorrectField("login", getCreatedCustomer().getLogin());
+    }
+
+    /**
+     * Check unique constraint for <em>email</em> field while adding {@link Customer}
+     */
+    @Test
+    public void checkUniqueConstraintForEmail_whenCustomerRequestStageAdd() {
+        addWithIncorrectField("email", getCreatedCustomer().getEmail());
+    }
+
+    /**
+     * Check not blank constraint for <em>login</em> while adding {@link Customer}
+     */
+    @Test
+    public void checkNotBlankConstraintForLogin_whenCustomerRequestStageAdd() {
+        addWithIncorrectField("login", null);
+        addWithIncorrectField("login", "");
+        addWithIncorrectField("login", " ");
+        addWithIncorrectField("login", "  ");
+        addWithIncorrectField("login", "\t");
+        addWithIncorrectField("login", "\n");
+    }
+
+    /**
+     * Check not blank constraint for <em>email</em> while adding {@link Customer}
+     */
+    @Test
+    public void checkNotBlankConstraintForEmail_whenCustomerRequestStageAdd() {
+        addWithIncorrectField("email", null);
+        addWithIncorrectField("email", "");
+        addWithIncorrectField("email", " ");
+        addWithIncorrectField("email", "  ");
+        addWithIncorrectField("email", "\t");
+        addWithIncorrectField("email", "\n");
+    }
+
+    /**
+     * Check not blank constraint for <em>password</em> while adding {@link Customer}
+     */
+    @Test
+    public void checkNotBlankConstraintForPassword_whenCustomerRequestStageAdd() {
+        addWithIncorrectField("password", null);
+        addWithIncorrectField("password", "");
+        addWithIncorrectField("password", " ");
+        addWithIncorrectField("password", "  ");
+        addWithIncorrectField("password", "\t");
+        addWithIncorrectField("password", "\n");
     }
 
     /**
@@ -441,5 +406,18 @@ public class CustomerControllerIntegrationTest {
                 httpEntity,
                 Customer.class
         );
+    }
+
+    /**
+     * Utility method for checking of some constraints during <em>entity addition</em>, which has simpler signature
+     * with reduced number of parameters. It could be used instead of
+     * direct call of {@link io.khasang.ba.controller.utility.RestRequests#addEntityWithIncorrectField(Class, String, Object, HttpStatus)}.
+     *
+     * @param fieldName      field, which should be set with incorrect value
+     * @param incorrectValue incorrect value
+     * @param <V>            type of the field
+     */
+    private <V> void addWithIncorrectField(String fieldName, V incorrectValue) {
+        addEntityWithIncorrectField(Customer.class, fieldName, incorrectValue, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
