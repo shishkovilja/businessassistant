@@ -1,463 +1,313 @@
 package io.khasang.ba.controller;
 
 import io.khasang.ba.entity.Operator;
-import io.khasang.ba.entity.OperatorInformation;
 import org.junit.Test;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpStatus;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static io.khasang.ba.controller.utility.MockFactory.getChangedMockOperator;
+import static io.khasang.ba.controller.utility.MockFactory.getMockOperator;
+import static io.khasang.ba.controller.utility.RestRequests.*;
 import static org.junit.Assert.*;
 
 /**
  * Integration test for Operator REST layer
  */
 public class OperatorControllerIntegrationTest {
-    //Mock data configuration
-    private static final String TEST_OPERATOR_LOGIN_PREFIX = "TEST_OPERATOR_";
-    private static final String TEST_OPERATOR_RAW_PASSWORD = "123tEsT#";
-    private static final String TEST_OPERATOR_EMAIL_SUFFIX = "@ba.khasang.io";
-    private static final String TEST_OPERATOR_FULL_NAME = "Ivan Petrov";
-    private static final LocalDate TEST_OPERATOR_BIRTHDATE = LocalDate.of(1986, 8, 26);
-    private static final String TEST_OPERATOR_COUNTRY = "Russia";
-    private static final String TEST_OPERATOR_CITY = "Saint Petersburg";
-    private static final String TEST_OPERATOR_ABOUT = "Another one mock test operator";
-
-    //Amount of test entities
-    private static final int TEST_ENTITIES_COUNT = 30;
-
-    private static final String ROOT = "http://localhost:8080/operator";
-    private static final String ADD = "/add";
-    private static final String GET_BY_ID = "/get/{id}";
-    private static final String GET_ALL = "/get/all";
-    private static final String UPDATE = "/update";
-    private static final String DELETE_BY_ID = "/delete/{id}";
 
     /**
-     * Check operator addition
+     * Check, that {@link OperatorController#getOperatorById(long)} gives NOT FOUND HTTP response
+     * in the case of attempt to get nonexistent entity, i.e. entity with <em>nonexistent Id</em>.
+     */
+    @Test
+    public void checkGetNonExistentOperator() {
+        getEntityById(Long.MAX_VALUE, Operator.class, HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * Check both {@link OperatorController#getOperatorById(long)} and
+     * {@link OperatorController#addOperator(Operator)} methods,
+     * i.e. HTTP methods GET and POST, providing possibilities to get an {@link Operator} entity
+     * from REST resource and to add it to the resource.
      */
     @Test
     public void checkAddOperator() {
+
+        //POST to REST
         Operator createdOperator = getCreatedOperator();
-        Operator receivedOperator = getOperatorById(createdOperator.getId());
-        assertNotNull(receivedOperator);
+
+        // GET from REST
+        Operator receivedOperator =
+                getEntityById(
+                        createdOperator.getId(),
+                        Operator.class,
+                        HttpStatus.OK);
+
         assertEquals(createdOperator, receivedOperator);
     }
 
     /**
-     * Check unique login constraint for operator's login during addition process
-     */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkAddLoginUniqueConstraint() {
-        Operator operator = getCreatedOperator();
-        Operator operatorWithSameLogin = getMockOperator();
-        operatorWithSameLogin.setLogin(operator.getLogin());
-        getResponseEntityFromPostRequest(operatorWithSameLogin);
-    }
-
-    /**
-     * Check unique constraint for operator's e-mail during addition process
-     */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkAddEmailUniqueConstraint() {
-        Operator operator = getCreatedOperator();
-        Operator operatorWithSameEmail = getMockOperator();
-        operatorWithSameEmail.setEmail(operator.getEmail());
-        getResponseEntityFromPostRequest(operatorWithSameEmail);
-    }
-
-    /**
-     * Check not-null constraint for operator's login during addition process
-     */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkAddWithNullLogin() {
-        Operator operatorWithNullLogin = getMockOperator();
-        operatorWithNullLogin.setLogin(null);
-        getResponseEntityFromPostRequest(operatorWithNullLogin);
-    }
-
-    /**
-     * Check not-empty constraint for operator's login during addition process
-     */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkAddWithEmptyLogin() {
-        Operator operatorWithEmptyLogin = getMockOperator();
-        operatorWithEmptyLogin.setLogin("");
-        getResponseEntityFromPostRequest(operatorWithEmptyLogin);
-    }
-
-    /**
-     * Check not-null constraint for operator's email during addition process
-     */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkAddWithNullEmail() {
-        Operator operatorWithNullEmail = getMockOperator();
-        operatorWithNullEmail.setEmail(null);
-        getResponseEntityFromPostRequest(operatorWithNullEmail);
-    }
-
-    /**
-     * Check not-empty constraint for operator's email during addition process
-     */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkAddWithEmptyEmail() {
-        Operator operatorWithEmptyEmail = getMockOperator();
-        operatorWithEmptyEmail.setEmail("");
-        getResponseEntityFromPostRequest(operatorWithEmptyEmail);
-    }
-
-    /**
-     * Check not-null constraint for operator's password during addition process
-     */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkAddWithNullPassword() {
-        Operator operatorWithNullPassword = getMockOperator();
-        operatorWithNullPassword.setPassword(null);
-        getResponseEntityFromPostRequest(operatorWithNullPassword);
-    }
-
-    /**
-     * Check not-empty constraint for operator's password during addition process
-     */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkAddWithEmptyPassword() {
-        Operator operatorWithEmptyPassword = getMockOperator();
-        operatorWithEmptyPassword.setPassword("");
-        getResponseEntityFromPostRequest(operatorWithEmptyPassword);
-    }
-
-    /**
-     * Checks sequential addition of certain amount of operators addition and getting. Amount is set in
-     * {@link #TEST_ENTITIES_COUNT} constant
+     * Check {@link OperatorController#getAllOperators()} method, i.e. HTTP method GET, used to
+     * get a list of {@link Operator} entities from REST resource
+     * entities.<br>
+     * <p>First of all, continuous addition of {@link Operator} entities with amount equal to
+     * {@link io.khasang.ba.controller.utility.RestRequests#TEST_ENTITIES_AMOUNT} is performed.
+     * Secondly, top TEST_ENTITIES_AMOUNT of entities, obtained from response body, received from REST-resource, placed at
+     * {@link io.khasang.ba.controller.utility.RestRequests#GET_ALL_PATH}), compared with list of
+     * previously added entities.
+     * </p>
      */
     @Test
     public void checkGetAllOperators() {
-        List<Operator> createdOperators = new ArrayList<>(TEST_ENTITIES_COUNT);
-        for (int i = 0; i < TEST_ENTITIES_COUNT; i++) {
-            createdOperators.add(getCreatedOperator());
-        }
 
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<List<Operator>> responseEntity = restTemplate.exchange(
-                ROOT + GET_ALL,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<List<Operator>>() {
-                }
-        );
-        List<Operator> allReceivedOperators = responseEntity.getBody();
+        // Create list of entities
+        List<Operator> createdOperatorsList =
+                getCreatedEntitiesList(
+                        Operator.class,
+                        TEST_ENTITIES_AMOUNT,
+                        HttpStatus.CREATED);
 
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertNotNull(allReceivedOperators);
-        assertFalse(allReceivedOperators.isEmpty());
+        // Receive all entities from REST
+        List<Operator> allOperators =
+                getAllEntitiesList(Operator.class, HttpStatus.OK);
 
+        // Check last TEST_ENTITIES_AMOUNT and assert for equality
         List<Operator> receivedOperatorsSubList =
-                allReceivedOperators.subList(allReceivedOperators.size() - TEST_ENTITIES_COUNT, allReceivedOperators.size());
-        for (int i = 0; i < TEST_ENTITIES_COUNT; i++) {
-            assertEquals(createdOperators.get(i), receivedOperatorsSubList.get(i));
-        }
+                allOperators.subList(allOperators.size() - TEST_ENTITIES_AMOUNT,
+                        allOperators.size());
+
+        assertEquals(createdOperatorsList, receivedOperatorsSubList);
     }
 
     /**
-     * Check of operator entity update via PUT request
+     * Check {@link OperatorController#updateOperator(Operator)}, i.e. HTTP method
+     * PUT, used to update an {@link Operator} entity on REST resource
      */
     @Test
     public void checkUpdateOperator() {
-        Operator operator = getChangedOperator(getCreatedOperator());
-        putOperatorToUpdate(operator);
 
-        Operator updatedOperator = getOperatorById(operator.getId());
-        assertNotNull(updatedOperator);
-        assertNotNull(updatedOperator.getId());
-        assertEquals(operator, updatedOperator);
+        // POST, then UPDATE in REST
+        Operator updatedOperator = getUpdatedOperator();
+
+        //Get it from REST, check id and assertEquals
+        Operator receivedOperator =
+                getEntityById(
+                        updatedOperator.getId(),
+                        Operator.class,
+                        HttpStatus.OK);
+
+        assertNotNull(receivedOperator.getId());
+        assertEquals(updatedOperator, receivedOperator);
     }
 
     /**
-     * Check operator's login update constraint during updating process
-     */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkLoginUpdate() {
-        Operator operator = getCreatedOperator();
-        operator.setLogin(TEST_OPERATOR_LOGIN_PREFIX + UUID.randomUUID().toString());
-        putOperatorToUpdate(operator);
-    }
-
-    /**
-     * Check unique constraint for operator's e-mail during updating process
-     */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkUpdateEmailUniqueConstraint() {
-        Operator operator1 = getCreatedOperator();
-        Operator operator2 = getCreatedOperator();
-        operator2.setEmail(operator1.getEmail());
-        putOperatorToUpdate(operator2);
-    }
-
-    /**
-     * Check not-null constraint for operator's email during updating process
-     */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkUpdateWithNullEmail() {
-        Operator operator = getCreatedOperator();
-        operator.setEmail(null);
-        putOperatorToUpdate(operator);
-    }
-
-    /**
-     * Check not-empty constraint for operator's email during updating process
-     */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkUpdateWithEmptyEmail() {
-        Operator operator = getCreatedOperator();
-        operator.setEmail("");
-        putOperatorToUpdate(operator);
-    }
-
-    /**
-     * Check not-null constraint for operator's password during updating process
-     */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkUpdateWithNullPassword() {
-        Operator operator = getCreatedOperator();
-        operator.setPassword(null);
-        putOperatorToUpdate(operator);
-    }
-
-    /**
-     * Check not-empty constraint for operator's password during updating process
-     */
-    @Test(expected = HttpServerErrorException.class)
-    public void checkUpdateWithEmptyPassword() {
-        Operator operator = getCreatedOperator();
-        operator.setPassword("");
-        putOperatorToUpdate(operator);
-    }
-
-    /**
-     * Check of operator deletion
+     * Check {@link OperatorController#deleteOperator(long)}, i.e. HTTP method
+     * DELETE, used to delete an {@link Operator} entity on REST resource
      */
     @Test
     public void checkOperatorDelete() {
-        Operator operator = getCreatedOperator();
-        Operator deletedOperator = getDeletedOperator(operator.getId());
-        assertEquals(operator, deletedOperator);
-        assertNull(getOperatorById(operator.getId()));
-    }
+        Operator createdOperator = getCreatedOperator();
 
-    /**
-     * Utility method which deletes operator by id and retrieves operator entity from DELETE response body
-     *
-     * @param id Id of the operator which should be deleted
-     * @return Deleted operator
-     */
-    private Operator getDeletedOperator(Long id) {
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Operator> responseEntity = restTemplate.exchange(
-                ROOT + DELETE_BY_ID,
-                HttpMethod.DELETE,
-                null,
+        getResponseFromEntityDeleteRequest(
+                createdOperator.getId(),
                 Operator.class,
-                id
-        );
-        Operator deletedOperator = responseEntity.getBody();
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertNotNull(deletedOperator);
-        return deletedOperator;
-    }
+                HttpStatus.NO_CONTENT);
 
-    /**
-     * Method for operator getting by id
-     *
-     * @param id Id in table of operators
-     * @return Found {@link Operator} instance
-     */
-    private Operator getOperatorById(Long id) {
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Operator> responseEntity = restTemplate.exchange(
-                ROOT + GET_BY_ID,
-                HttpMethod.GET,
-                null,
+        assertNull(getEntityById(
+                createdOperator.getId(),
                 Operator.class,
-                id
-        );
-        Operator receivedOperator = responseEntity.getBody();
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        return receivedOperator;
+                HttpStatus.NOT_FOUND));
     }
 
+    //Addition constraints
+
     /**
-     * Put operator for update
-     *
-     * @param operator Operator, which should be updated on service
+     * Check unique constraint for <em>name</em> field while adding {@link Operator}
      */
-    private void putOperatorToUpdate(Operator operator) {
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-        HttpEntity<Operator> httpEntity = new HttpEntity<>(operator, httpHeaders);
-
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Operator> responseEntity = restTemplate.exchange(
-                ROOT + UPDATE,
-                HttpMethod.PUT,
-                httpEntity,
-                Operator.class
-        );
-
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertNotNull(responseEntity.getBody());
+    @Test
+    public void checkUniqueConstraintForLogin_whenOperatorRequestStageAdd() {
+        addWithIncorrectField("login", getCreatedOperator().getLogin());
     }
 
     /**
-     * Change operators field for further update
-     *
-     * @param oldOperator operator instance which updated {@link Operator}
-     * @return updated operator
+     * Check unique constraint for <em>email</em> field while adding {@link Operator}
      */
-    private Operator getChangedOperator(Operator oldOperator) {
-        OperatorBuilder operatorBuilder = new OperatorBuilder();
-        Operator newOperator = operatorBuilder
-                .addLogin(oldOperator.getLogin())
-                .addEmail(UUID.randomUUID().toString() + "@newmail.com")
-                .addPassword("new_password")
-                .addFullName("New Full Name")
-                .addBirthDate(LocalDate.of(1990, 10, 15))
-                .addCountry("USA")
-                .addCity("New York")
-                .addAbout("new_about")
-                .build();
-        newOperator.setId(oldOperator.getId());
-        return newOperator;
+    @Test
+    public void checkUniqueConstraintForEmail_whenOperatorRequestStageAdd() {
+        addWithIncorrectField("email", getCreatedOperator().getEmail());
     }
 
     /**
-     * Get created test operator entity from POST response during operator creation procedure. Instead of creating {@link Operator}
-     * instance by constructor, this method returns instance from response, thus created operator contains table identifier
+     * Check not blank constraint for <em>login</em> while adding {@link Operator}
+     */
+    @Test
+    public void checkNotBlankConstraintForLogin_whenOperatorRequestStageAdd() {
+        addWithIncorrectField("login", null);
+        addWithIncorrectField("login", "");
+        addWithIncorrectField("login", " ");
+        addWithIncorrectField("login", "  ");
+        addWithIncorrectField("login", "\t");
+        addWithIncorrectField("login", "\n");
+    }
+
+    /**
+     * Check not blank constraint for <em>email</em> while adding {@link Operator}
+     */
+    @Test
+    public void checkNotBlankConstraintForEmail_whenOperatorRequestStageAdd() {
+        addWithIncorrectField("email", null);
+        addWithIncorrectField("email", "");
+        addWithIncorrectField("email", " ");
+        addWithIncorrectField("email", "  ");
+        addWithIncorrectField("email", "\t");
+        addWithIncorrectField("email", "\n");
+    }
+
+    /**
+     * Check not blank constraint for <em>password</em> while adding {@link Operator}
+     */
+    @Test
+    public void checkNotBlankConstraintForPassword_whenOperatorRequestStageAdd() {
+        addWithIncorrectField("password", null);
+        addWithIncorrectField("password", "");
+        addWithIncorrectField("password", " ");
+        addWithIncorrectField("password", "  ");
+        addWithIncorrectField("password", "\t");
+        addWithIncorrectField("password", "\n");
+    }
+
+    // Update constraints
+
+    /**
+     * Check immutable constraint for <em>login</em> while updating {@link Operator}
+     */
+    @Test
+    public void checkImmutableConstraintForLogin_whenOperatorRequestStageUpdate() {
+        updateEntityWithIncorrectField(
+                getCreatedOperator(),
+                "login",
+                UUID.randomUUID().toString(),
+                HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * Check unique constraint for <em>login</em> while updating {@link Operator}
+     */
+    @Test
+    public void checkUniqueConstraintForLogin_whenOperatorRequestStageUpdate() {
+        updateWithIncorrectField("login", getCreatedOperator().getLogin());
+    }
+
+    /**
+     * Check unique constraint for <em>email</em> while updating {@link Operator}
+     */
+    @Test
+    public void checkUniqueConstraintForEmail_whenOperatorRequestStageUpdate() {
+        updateWithIncorrectField("email", getCreatedOperator().getEmail());
+    }
+
+    /**
+     * Check not blank constraint for <em>login</em> while updating {@link Operator}
+     */
+    @Test
+    public void checkNotBlankConstraintForLogin_whenOperatorRequestStageUpdate() {
+        updateWithIncorrectField("login", null);
+        updateWithIncorrectField("login", "");
+        updateWithIncorrectField("login", " ");
+        updateWithIncorrectField("login", "  ");
+        updateWithIncorrectField("login", "\t");
+        updateWithIncorrectField("login", "\n");
+    }
+
+    /**
+     * Check not blank constraint for <em>email</em> while updating {@link Operator}
+     */
+    @Test
+    public void checkNotBlankConstraintForEmail_whenOperatorRequestStageUpdate() {
+        updateWithIncorrectField("email", null);
+        updateWithIncorrectField("email", "");
+        updateWithIncorrectField("email", " ");
+        updateWithIncorrectField("email", "  ");
+        updateWithIncorrectField("email", "\t");
+        updateWithIncorrectField("email", "\n");
+    }
+
+    /**
+     * Check not blank constraint for <em>password</em> while updating {@link Operator}
+     */
+    @Test
+    public void checkNotBlankConstraintForPassword_whenOperatorRequestStageUpdate() {
+        updateWithIncorrectField("password", null);
+        updateWithIncorrectField("password", "");
+        updateWithIncorrectField("password", " ");
+        updateWithIncorrectField("password", "  ");
+        updateWithIncorrectField("password", "\t");
+        updateWithIncorrectField("password", "\n");
+    }
+
+    // Utility methods
+
+    /**
+     * Create mock {@link Operator} instance, and add (i.e. POST) it to a REST resource
      *
-     * @return Instance of {@link Operator} with generated identifier
+     * @return added to REST resource entity
      */
     private Operator getCreatedOperator() {
         Operator operator = getMockOperator();
 
-        LocalDateTime timeBeforeCreation = LocalDateTime.now();
-        ResponseEntity<Operator> responseEntity = getResponseEntityFromPostRequest(operator);
-        Operator createdOperator = responseEntity.getBody();
-        LocalDateTime timeAfterCreation = LocalDateTime.now();
+        Operator createdOperator =
+                getResponseFromEntityAddRequest(operator, HttpStatus.CREATED);
 
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertNotNull(createdOperator);
         assertNotNull(createdOperator.getId());
         assertEquals(operator, createdOperator);
-        assertEquals(-1, timeBeforeCreation.compareTo(createdOperator.getRegistrationTimestamp()));
-        assertEquals(1, timeAfterCreation.compareTo(createdOperator.getRegistrationTimestamp()));
+
         return createdOperator;
     }
 
     /**
-     * Build mock {@link Operator} instance vie {@link OperatorBuilder}
+     * Update existing {@link Operator} entity at REST resource. Firstly, add new mock entity and then
+     * PUT updated entity to REST resource
      *
-     * @return prefilled mock operator instance
+     * @return updated at REST resource instance of entity
      */
-    private Operator getMockOperator() {
-        OperatorBuilder operatorBuilder = new OperatorBuilder();
-        return operatorBuilder
-                .addLogin(TEST_OPERATOR_LOGIN_PREFIX + UUID.randomUUID().toString())
-                .addEmail(UUID.randomUUID().toString() + TEST_OPERATOR_EMAIL_SUFFIX)
-                .addAbout(TEST_OPERATOR_ABOUT)
-                .addCity(TEST_OPERATOR_CITY)
-                .addFullName(TEST_OPERATOR_FULL_NAME)
-                .addPassword(TEST_OPERATOR_RAW_PASSWORD)
-                .addBirthDate(TEST_OPERATOR_BIRTHDATE)
-                .addCountry(TEST_OPERATOR_COUNTRY)
-                .build();
+    private Operator getUpdatedOperator() {
+        Operator createdOperator = getCreatedOperator();
+
+        Operator updatedOperator =
+                getResponseFromEntityUpdateRequest(
+                        getChangedMockOperator(createdOperator),
+                        HttpStatus.OK);
+
+        assertEquals(createdOperator.getId(), updatedOperator.getId());
+
+        return updatedOperator;
     }
 
     /**
-     * Add operator entity via POST request
+     * Utility method for checking of some constraints during <em>entity addition</em>, which has simpler signature
+     * with reduced number of parameters. It could be used instead of
+     * direct call of {@link io.khasang.ba.controller.utility.RestRequests#addEntityWithIncorrectField(Class, String, Object, HttpStatus)}.
      *
-     * @param operator {@link Operator} instance, which should be added via POST request
-     * @return {@link ResponseEntity} containing response data
+     * @param fieldName      field, which should be set with incorrect value
+     * @param incorrectValue incorrect value
+     * @param <V>            type of the field
      */
-    private ResponseEntity<Operator> getResponseEntityFromPostRequest(Operator operator) {
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-        HttpEntity<Operator> httpEntity = new HttpEntity<>(operator, httpHeaders);
-
-        RestTemplate restTemplate = new RestTemplate();
-        return restTemplate.exchange(
-                ROOT + ADD,
-                HttpMethod.POST,
-                httpEntity,
-                Operator.class
-        );
+    private <V> void addWithIncorrectField(String fieldName, V incorrectValue) {
+        addEntityWithIncorrectField(Operator.class, fieldName, incorrectValue, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
-     * Static inner builder of operator
+     * Utility method for checking of some constraints during <em>entity update</em>, which has simpler signature
+     * with reduced number of parameters. It could be used instead of
+     * direct call of {@link io.khasang.ba.controller.utility.RestRequests#updateEntityWithIncorrectField(Class, String, Object, HttpStatus)}.
+     *
+     * @param fieldName      field, which should be set with incorrect value
+     * @param incorrectValue incorrect value
+     * @param <V>            type of the field
      */
-    protected static class OperatorBuilder {
-        private OperatorInformation operatorInformation;
-
-        //Instance of buildabe Operator
-        private Operator operator;
-
-        public OperatorBuilder() {
-            operator = new Operator();
-            operatorInformation = new OperatorInformation();
-            operator.setOperatorInformation(operatorInformation);
-        }
-
-        public Operator build() {
-            assertNotNull(operator.getLogin());
-            assertNotNull(operator.getPassword());
-            assertNotNull(operator.getEmail());
-            return operator;
-        }
-
-        public OperatorBuilder addLogin(String login) {
-            operator.setLogin(login);
-            return this;
-        }
-
-        public OperatorBuilder addEmail(String email) {
-            operator.setEmail(email);
-            return this;
-        }
-
-        public OperatorBuilder addPassword(String password) {
-            operator.setPassword(password);
-            return this;
-        }
-
-        public OperatorBuilder addBirthDate(LocalDate birthDate) {
-            operatorInformation.setBirthDate(birthDate);
-            return this;
-        }
-
-        public OperatorBuilder addFullName(String fullName) {
-            operatorInformation.setFullName(fullName);
-            return this;
-        }
-
-        public OperatorBuilder addAbout(String about) {
-            operatorInformation.setAbout(about);
-            return this;
-        }
-
-        public OperatorBuilder addCountry(String country) {
-            operatorInformation.setCountry(country);
-            return this;
-        }
-
-        public OperatorBuilder addCity(String city) {
-            operatorInformation.setCity(city);
-            return this;
-        }
+    private <V> void updateWithIncorrectField(String fieldName, V incorrectValue) {
+        updateEntityWithIncorrectField(Operator.class, fieldName, incorrectValue, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
