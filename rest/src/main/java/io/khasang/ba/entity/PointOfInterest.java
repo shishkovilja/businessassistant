@@ -22,7 +22,7 @@ public class PointOfInterest {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @NonNull
     @NotEmpty
@@ -38,7 +38,7 @@ public class PointOfInterest {
 
     @ColumnDefault(value = "0")
     @Column(name = "work_time")
-    private int workTime;
+    private Integer workTime;
 
     @NonNull
     private String address;
