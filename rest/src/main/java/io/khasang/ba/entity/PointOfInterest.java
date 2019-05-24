@@ -1,7 +1,11 @@
 package io.khasang.ba.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
 import java.time.LocalTime;
@@ -11,96 +15,31 @@ import java.time.LocalTime;
  * include category etc.
  */
 @Entity
-@Table(name = "pointsOfInterest")
+@Table(name = "points_of_interest")
+@Data
+@NoArgsConstructor
 public class PointOfInterest {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @NonNull
+    @NotEmpty
     private String name;
 
     @ColumnDefault(value = "'unknown'")
     private String category;
 
-    @Column(columnDefinition = "TIME")
+    @Column(name = "start_work", columnDefinition = "TIME")
     @ColumnDefault(value = "'00:00:00'")
     @JsonFormat(pattern = "HH:mm")
     private LocalTime startWork;
 
     @ColumnDefault(value = "0")
+    @Column(name = "work_time")
     private int workTime;
+
+    @NonNull
     private String address;
-
-    //Geographic coordinates latitude
-    @ColumnDefault(value = "0.000000")
-    private double latitude;
-
-    //Geographic coordinates longitude
-    @ColumnDefault(value = "0.000000")
-    private double longitude;
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public LocalTime getStartWork() {
-        return startWork;
-    }
-
-    public void setStartWork(LocalTime startWork) {
-        this.startWork = startWork;
-    }
-
-    public int getWorkTime() {
-        return workTime;
-    }
-
-    public void setWorkTime(int workTime) {
-        this.workTime = workTime >= 0 ? workTime : 0;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public double getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
-    }
-
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
-    }
 }
