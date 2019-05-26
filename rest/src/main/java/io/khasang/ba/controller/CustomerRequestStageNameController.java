@@ -13,7 +13,7 @@ import java.util.List;
  * Controller for REST layer of CustomerRequestStageName management: provided POST, GET, PUT and DELETE functionality
  */
 @RestController
-@RequestMapping(value = "/customer_request_stage_name")
+@RequestMapping(value = "/customer_request_stage_name", produces = "application/json;charset=utf-8")
 // TODO ControllerAdvice and throwing of an exception in service layer
 public class CustomerRequestStageNameController {
 
