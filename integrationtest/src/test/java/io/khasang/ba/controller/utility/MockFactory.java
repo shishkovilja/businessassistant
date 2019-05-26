@@ -25,6 +25,7 @@ public final class MockFactory {
      */
     public static final Map<Class<?>, Supplier<?>> mockSuppliersMap = Collections.unmodifiableMap(new HashMap<Class<?>, Supplier<?>>() {{
         put(Customer.class, MockFactory::getMockCustomer);
+        put(CustomerRequest.class, MockFactory::getMockCustomerRequest);
         put(CustomerRequestStage.class, MockFactory::getMockCustomerRequestStage);
         put(CustomerRequestStageName.class, MockFactory::getMockCustomerRequestStageName);
         put(Operator.class, MockFactory::getMockOperator);
@@ -202,5 +203,33 @@ public final class MockFactory {
         newCustomerRequestStageName.setId(oldCustomerRequestStageName.getId());
 
         return newCustomerRequestStageName;
+    }
+
+    /**
+     * Create mock {@link CustomerRequest} instance
+     *
+     * @return mock {@link CustomerRequest} instance
+     */
+    public static CustomerRequest getMockCustomerRequest() {
+        CustomerRequest customerRequest = new CustomerRequest();
+
+        customerRequest.setComment(UUID.randomUUID().toString());
+
+        return customerRequest;
+    }
+
+    /**
+     * Change existing {@link CustomerRequest}. Firstly, new mock entity is made and then copying of necessary
+     * fields from old entity (generally with constraints Id, Unique, NaturalId etc) is performed.
+     *
+     * @param oldCustomerRequest old entity
+     * @return changed entity
+     */
+    public static CustomerRequest getChangedMockCustomerRequest(CustomerRequest oldCustomerRequest) {
+        CustomerRequest newCustomerRequest = getMockCustomerRequest();
+
+        newCustomerRequest.setId(oldCustomerRequest.getId());
+
+        return newCustomerRequest;
     }
 }

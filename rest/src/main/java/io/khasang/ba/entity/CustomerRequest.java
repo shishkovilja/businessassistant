@@ -1,6 +1,7 @@
 package io.khasang.ba.entity;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 
@@ -14,5 +15,8 @@ public class CustomerRequest {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @EqualsAndHashCode.Exclude
     private Long id;
+
+    private String comment;
 }
