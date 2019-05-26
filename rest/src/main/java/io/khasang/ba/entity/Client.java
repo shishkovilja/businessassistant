@@ -25,7 +25,7 @@ public class Client {
     private String password;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private List<Request> requestList;
+    private List<CustomerRequest> customerRequestList;
 
     @Column(columnDefinition = "DATE")
     private LocalDate date;
@@ -89,12 +89,12 @@ public class Client {
         this.password = password;
     }
 
-    public List<Request> getRequestList() {
-        return requestList;
+    public List<CustomerRequest> getCustomerRequestList() {
+        return customerRequestList;
     }
 
-    public void setRequestList(List<Request> requestList) {
-        this.requestList = requestList;
+    public void setCustomerRequestList(List<CustomerRequest> customerRequestList) {
+        this.customerRequestList = customerRequestList;
     }
 
     public LocalDate getDate() {

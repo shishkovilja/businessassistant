@@ -1,7 +1,7 @@
 package io.khasang.ba.controller;
 
 import io.khasang.ba.entity.Client;
-import io.khasang.ba.entity.Request;
+import io.khasang.ba.entity.CustomerRequest;
 import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -139,19 +139,19 @@ public class ClientControllerIntegrationTest {
         client.setTime(LocalTime.of(10, 11, 34));
         client.setDate(LocalDate.of(2018, 10, 12));
 
-        Request request1 = new Request();
-        Request request2 = new Request();
+        CustomerRequest customerRequest1 = new CustomerRequest();
+        CustomerRequest customerRequest2 = new CustomerRequest();
 
-        request1.setCategory("Трудовой договор");
-        request1.setDescription("Ляляляля");
-        request2.setCategory("Трудовой договор");
-        request2.setDescription("Tралялятра");
+//        customerRequest1.setCategory("Трудовой договор");
+//        customerRequest1.setDescription("Ляляляля");
+//        customerRequest2.setCategory("Трудовой договор");
+//        customerRequest2.setDescription("Tралялятра");
 
-        List<Request> requestList = new ArrayList<>();
-        requestList.add(request1);
-        requestList.add(request1);
+        List<CustomerRequest> customerRequestList = new ArrayList<>();
+        customerRequestList.add(customerRequest1);
+        customerRequestList.add(customerRequest1);
 
-        client.setRequestList(requestList);
+        client.setCustomerRequestList(customerRequestList);
         return client;
     }
 
@@ -166,19 +166,19 @@ public class ClientControllerIntegrationTest {
         client.setTime(LocalTime.of(10, 11, 34));
         client.setDate(LocalDate.of(2018, 10, 12));
 
-        Request request1 = new Request();
-        Request request2 = new Request();
+        CustomerRequest customerRequest1 = new CustomerRequest();
+        CustomerRequest customerRequest2 = new CustomerRequest();
 
-        request1.setCategory("Трудовой договор");
-        request1.setDescription("Ляляляляляля");
-        request2.setCategory("Трудовой договор");
-        request2.setDescription("Tралялятраляля");
+//        customerRequest1.setCategory("Трудовой договор");
+//        customerRequest1.setDescription("Ляляляляляля");
+//        customerRequest2.setCategory("Трудовой договор");
+//        customerRequest2.setDescription("Tралялятраляля");
 
-        List<Request> requestList = new ArrayList<>();
-        requestList.add(request1);
-        requestList.add(request1);
+        List<CustomerRequest> customerRequestList = new ArrayList<>();
+        customerRequestList.add(customerRequest1);
+        customerRequestList.add(customerRequest1);
 
-        client.setRequestList(requestList);
+        client.setCustomerRequestList(customerRequestList);
         return client;
     }
 }

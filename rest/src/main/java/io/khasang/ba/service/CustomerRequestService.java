@@ -1,17 +1,17 @@
 package io.khasang.ba.service;
 
-import io.khasang.ba.entity.Request;
+import io.khasang.ba.entity.CustomerRequest;
 
 import java.util.List;
 
-public interface RequestService {
+public interface CustomerRequestService {
     /**
      * method for add request
      *
-     * @param request = request for adding
+     * @param customerRequest = request for adding
      * @return created Request
      */
-    Request addRequest(Request request);
+    CustomerRequest addRequest(CustomerRequest customerRequest);
 
     /**
      * method for getting request by specific id
@@ -19,22 +19,22 @@ public interface RequestService {
      * @param id - request's id
      * @return request by id
      */
-    Request getRequestById(long id);
+    CustomerRequest getRequestById(long id);
 
     /**
      * method for getting all requests
      *
      * @return all requests
      */
-    List<Request> getAllRequests();
+    List<CustomerRequest> getAllRequests();
 
     /**
      * method for update request
      *
-     * @param request - request's with updated params
+     * @param customerRequest - request's with updated params
      * @return updated request
      */
-    Request updateRequest(Request request);
+    CustomerRequest updateRequest(CustomerRequest customerRequest);
 
     /**
      * method for delete request by id
@@ -42,5 +42,5 @@ public interface RequestService {
      * @param id - request's id for delete
      * @return deleted request
      */
-    Request deleteRequest(long id);
+    CustomerRequest deleteRequest(long id);
 }
