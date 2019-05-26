@@ -1,5 +1,9 @@
 package io.khasang.ba.controller.utility;
 
+import io.khasang.ba.entity.Customer;
+import io.khasang.ba.entity.CustomerRequestStage;
+import io.khasang.ba.entity.CustomerRequestStageName;
+import io.khasang.ba.entity.Operator;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.web.client.HttpClientErrorException;
@@ -7,7 +11,10 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -31,7 +38,9 @@ public final class RestRequests {
     public static String REST_ROOT = "http://localhost:8080/";
 
     // Roots of REST resources
+    public static final String CUSTOMER_ROOT = REST_ROOT + "customer";
     public static final String CUSTOMER_REQUEST_STAGE_ROOT = REST_ROOT + "customer_request_stage";
+    public static final String CUSTOMER_REQUEST_STAGE_NAME_ROOT = REST_ROOT + "customer_request_stage_name";
     public static final String OPERATOR_ROOT = REST_ROOT + "operator";
 
     // Common addresses of REST resources
@@ -42,67 +51,91 @@ public final class RestRequests {
     public static final String DELETE_BY_ID_PATH = "/delete/{id}";
 
     /**
+     * Map which determines root of rest resources by entity class, therefore there is no necessity to specify path
+     * of the REST resource, because it will be detected automatically
+     */
+    public static final Map<Class<?>, String> restRootsMap = Collections.unmodifiableMap(new HashMap<Class<?>, String>() {{
+        put(Customer.class, CUSTOMER_ROOT);
+        put(CustomerRequestStage.class, CUSTOMER_REQUEST_STAGE_ROOT);
+        put(CustomerRequestStageName.class, CUSTOMER_REQUEST_STAGE_NAME_ROOT);
+        put(Operator.class, OPERATOR_ROOT);
+    }});
+
+    /**
+     * Map which determines maps class to parametrized type reference for lists of entities in order to avoid boilerplate code
+     */
+    public static final Map<Class<?>, ParameterizedTypeReference<? extends List>> typeReferencesMap =
+            new HashMap<Class<?>, ParameterizedTypeReference<? extends List>>() {{
+                put(Customer.class, new ParameterizedTypeReference<List<Customer>>() {
+                });
+                put(CustomerRequestStage.class, new ParameterizedTypeReference<List<CustomerRequestStage>>() {
+                });
+                put(CustomerRequestStageName.class, new ParameterizedTypeReference<List<CustomerRequestStageName>>() {
+                });
+                put(Operator.class, new ParameterizedTypeReference<List<Operator>>() {
+                });
+            }};
+
+    /**
      * Add an entity via POST HTTP-method, check status codes of response, provide necessary assertions,
-     * and return body of the response
+     * and return body of the response. Path to corresponding REST resource is detected by class by means of {@link #restRootsMap}
      *
      * @param entity             the entity, which should be added
-     * @param postUrl            an URL of receiving POST request REST-resource
      * @param expectedStatusCode expected HTTP status code of response
      * @param <T>                type of the entity <em>both of request and response</em>
      * @return POST response body
      */
-    public static <T> T getResponseFromEntityAddRequest(T entity, String postUrl, HttpStatus expectedStatusCode) {
-        return getBodyOfResponseToSendEntityRequest(entity, postUrl, HttpMethod.POST, expectedStatusCode);
+    public static <T> T getResponseFromEntityAddRequest(T entity, HttpStatus expectedStatusCode) {
+        return getBodyOfResponseToSendEntityRequest(entity, restRootsMap.get(entity.getClass()) + ADD_PATH,
+                HttpMethod.POST, expectedStatusCode);
     }
 
     /**
      * Get an entity via GET HTTP-method, check status codes of response, provide necessary assertions,
-     * and return body of the response
+     * and return body of the response. Path to corresponding REST resource is detected by class by means of {@link #restRootsMap}
      *
      * @param id                 of an entity which should be found
      * @param entityClass        class of the desired entity
-     * @param getUrl             an URL of receiving GET request REST-resource
      * @param expectedStatusCode expected HTTP status code of response
      * @param <T>                type of the entity returned in response body
      * @return GET response body, i.e. entity instance
      */
-    public static <T> T getEntityById(Long id, Class<T> entityClass, String getUrl, HttpStatus expectedStatusCode) {
+    public static <T> T getEntityById(Long id, Class<T> entityClass, HttpStatus expectedStatusCode) {
         return tryToGetResponseBody(() -> {
                     ResponseEntity<T> responseEntity = new RestTemplate().exchange(
-                            getUrl,
+                            restRootsMap.get(entityClass) + GET_BY_ID_PATH,
                             HttpMethod.GET,
                             null,
                             entityClass,
                             id);
 
                     assertEquals(expectedStatusCode, responseEntity.getStatusCode());
-                    T entity1 = responseEntity.getBody();
-                    assertNotNull(entity1);
+                    T responseBody = responseEntity.getBody();
+                    assertNotNull(responseBody);
 
-                    return entity1;
+                    return responseBody;
                 },
                 expectedStatusCode);
     }
 
     /**
      * Get all entities via GET HTTP-method, check status codes of response, provide necessary assertions,
-     * and return body of the response
+     * and return body of the response. Path to corresponding REST resource is detected by class by means of {@link #restRootsMap}<br>
+     * Also, {@link #typeReferencesMap} used, to automate detection of necessary {@link ParameterizedTypeReference} by class.
      *
      * @param <T>                type of entities list returned in response body
-     * @param getAllUrl          an URL of receiving GET request REST-resource
      * @param expectedStatusCode expected HTTP status code of response
      * @return list of all entities from the given resource
      */
-    public static <T> List<T> getAllEntitiesList(ParameterizedTypeReference<List<T>> typeReference, String getAllUrl,
+    @SuppressWarnings("unchecked")
+    public static <T> List<T> getAllEntitiesList(Class<T> entityClass,
                                                  HttpStatus expectedStatusCode) {
         return tryToGetResponseBody(() -> {
-                    RestTemplate restTemplate = new RestTemplate();
-
-                    ResponseEntity<List<T>> responseEntity = restTemplate.exchange(
-                            getAllUrl,
+                    ResponseEntity<List<T>> responseEntity = new RestTemplate().exchange(
+                            restRootsMap.get(entityClass) + GET_ALL_PATH,
                             HttpMethod.GET,
                             null,
-                            typeReference
+                            (ParameterizedTypeReference<List<T>>) typeReferencesMap.get(entityClass)
                     );
 
                     assertEquals(expectedStatusCode, responseEntity.getStatusCode());
@@ -117,37 +150,39 @@ public final class RestRequests {
 
     /**
      * Update an entity via POST HTTP-method, check status codes of response, provide necessary assertions,
-     * and return body of the response
+     * and return body of the response. Path to corresponding REST resource is detected by class by means of {@link #restRootsMap}
      *
      * @param entity             the entity, which should be added
-     * @param putUrl             an URL of receiving POST request REST-resource
      * @param expectedStatusCode expected HTTP status code of response
      * @param <T>                type of the entity <em>both of request and response</em>
      * @return PUT response body
      */
-    public static <T> T getResponseFromEntityUpdateRequest(T entity, String putUrl, HttpStatus expectedStatusCode) {
-        T putEntity = getBodyOfResponseToSendEntityRequest(entity, putUrl, HttpMethod.PUT, expectedStatusCode);
+    public static <T> T getResponseFromEntityUpdateRequest(T entity, HttpStatus expectedStatusCode) {
+        T putEntity = getBodyOfResponseToSendEntityRequest(
+                entity,
+                restRootsMap.get(entity.getClass()) + UPDATE_PATH,
+                HttpMethod.PUT,
+                expectedStatusCode);
+
         assertEquals(entity, putEntity);
         return putEntity;
     }
 
     /**
      * Delete an entity via DELETE HTTP-method, check status codes of response, provide necessary assertions,
-     * and return body of the response
+     * and return body of the response. Path to corresponding REST resource is detected by class by means of {@link #restRootsMap}
      *
      * @param id                 identifier of the entity, which should be deleted
      * @param entityClass        class of the entity
-     * @param deleteUrl          an URL of receiving DELETE request REST-resource
      * @param expectedStatusCode expected HTTP status code of response
      * @param <T>                type of the entity in response body
      * @return DELETE response body
      */
-    public static <T> T getResponseFromEntityDeleteRequest(Long id, Class<T> entityClass, String deleteUrl,
+    public static <T> T getResponseFromEntityDeleteRequest(Long id, Class<T> entityClass,
                                                            HttpStatus expectedStatusCode) {
         return tryToGetResponseBody(() -> {
-                    RestTemplate restTemplate = new RestTemplate();
-                    ResponseEntity<T> responseEntity = restTemplate.exchange(
-                            deleteUrl,
+                    ResponseEntity<T> responseEntity = new RestTemplate().exchange(
+                            restRootsMap.get(entityClass) + DELETE_BY_ID_PATH,
                             HttpMethod.DELETE,
                             null,
                             entityClass,
@@ -161,22 +196,24 @@ public final class RestRequests {
     }
 
     /**
-     * Perform continuous addition of entities, supplied with a given supplier, to REST resource.
+     * Perform continuous addition of group entities. Entities are created by a supplier, found by class, acting as key
+     * for {@link MockFactory#mockSuppliersMap}. Path of corresponding REST resource is detected
+     * in the same way by means of {@link #restRootsMap}
      * For example, the supplier could be a method link to {@link MockFactory#getMockCustomer()}):<br>.
      * <code>MockFactory::getMockCustomer</code><br>
      * Each entity undergoes POST request to REST resource with a given URL
      *
-     * @param entitySupplier     supplier of entities
+     * @param entityClass        an entity class
      * @param amount             amount of entities to create
-     * @param postUrl            an URL of receiving POST request REST-resource
      * @param expectedStatusCode expected HTTP status code response to each POST request
      * @param <T>                type of entities <em>both of request and response</em>
      * @return list of the entities created on REST-resource
      */
-    public static <T> List<T> getCreatedEntitiesList(Supplier<T> entitySupplier, int amount,
-                                                     String postUrl, HttpStatus expectedStatusCode) {
+    @SuppressWarnings("unchecked")
+    public static <T> List<T> getCreatedEntitiesList(Class<T> entityClass, int amount, HttpStatus expectedStatusCode) {
         Function<T, T> toEntityFromPostRequest = (T entity) ->
-                getResponseFromEntityAddRequest(entity, postUrl, expectedStatusCode);
+                getResponseFromEntityAddRequest(entity, expectedStatusCode);
+        Supplier<T> entitySupplier = (Supplier<T>) MockFactory.mockSuppliersMap.get(entityClass);
 
         return Stream
                 .generate(entitySupplier)
@@ -186,25 +223,113 @@ public final class RestRequests {
     }
 
     /**
-     * Check sending of an entity with incorrect field (with incorrect value or with violating constraint) to a given
-     * REST resource. Field is changed via java reflection mechanisms. <br>
+     * <p>Check addition of an entity with incorrect field (with incorrect value or with violating such constraints, as NotNull, Unique)
+     * to corresponding REST resource, which path is detected by class by means of {@link #restRootsMap}.
+     * Field value is set via java reflection mechanisms. </p>
+     * <p>In a case of absence of {@link HttpClientErrorException} or {@link HttpServerErrorException}, method fails with assertion error
+     * <em>NOTICE: This behaviour will be changed after REST layer response codes regulation</em></p>
+     *
+     * @param entityClass             an entity class
+     * @param fieldName               a field, which should be changed
+     * @param incorrectValue          incorrect value for changing field
+     * @param expectedErrorStatusCode expected HTTP status code error
+     * @param <T>                     type of the entity <em>both of request and response</em>
+     * @param <V>                     type of the field
+     */
+    @SuppressWarnings("unchecked")
+    public static <T, V> void addEntityWithIncorrectField(Class<T> entityClass, String fieldName, V incorrectValue,
+                                                          HttpStatus expectedErrorStatusCode) {
+        Supplier<T> entitySupplier = (Supplier<T>) MockFactory.mockSuppliersMap.get(entityClass);
+        sendEntityWithIncorrectField(
+                entitySupplier.get(),
+                fieldName,
+                incorrectValue,
+                restRootsMap.get(entityClass) + ADD_PATH,
+                HttpMethod.POST,
+                expectedErrorStatusCode);
+    }
+
+    /**
+     * <p>Check update of an entity with incorrect field (with incorrect value or with violating such constraints, as NotNull, Unique)
+     * at corresponding REST resource, which path is detected by class by means of {@link #restRootsMap}.
+     * Field value is set via java reflection mechanisms.</p>
+     * <p>First of all, entity is properly created at REST resource, after that incorrect value is set to a given field and attempt
+     * to update REST resource is performed.</p>
+     * <p>In a case of absence of {@link HttpClientErrorException} or {@link HttpServerErrorException}, method fails with assertion error
+     * <em>NOTICE: This behaviour will be changed after REST layer response codes regulation</em></p>
+     *
+     * @param entityClass             an entity class
+     * @param fieldName               a field, which should be changed
+     * @param incorrectValue          incorrect value for changing field
+     * @param expectedErrorStatusCode expected HTTP status code error
+     * @param <T>                     type of the entity <em>both of request and response</em>
+     * @param <V>                     type of the field
+     */
+    @SuppressWarnings("unchecked")
+    public static <T, V> void updateEntityWithIncorrectField(Class<T> entityClass, String fieldName, V incorrectValue,
+                                                             HttpStatus expectedErrorStatusCode) {
+        Supplier<T> entitySupplier = (Supplier<T>) MockFactory.mockSuppliersMap.get(entityClass);
+        T entity = getResponseFromEntityAddRequest(entitySupplier.get(), HttpStatus.CREATED);
+
+        sendEntityWithIncorrectField(
+                entity,
+                fieldName,
+                incorrectValue,
+                restRootsMap.get(entityClass) + UPDATE_PATH,
+                HttpMethod.PUT,
+                expectedErrorStatusCode);
+    }
+
+    /**
+     * <p>Check update of an entity with incorrect field (with incorrect value or with violating such constraints, as NotNull, Unique)
+     * at corresponding REST resource, which path is detected by class by means of {@link #restRootsMap}.
+     * Field value is set via java reflection mechanisms.</p>
+     * <p>Difference with {@link #updateEntityWithIncorrectField(Class, String, Object, HttpStatus)} consist in that this method
+     * performs update for <em>properly created entity from REST resource</em>.
+     * <p>In a case of absence of {@link HttpClientErrorException} or {@link HttpServerErrorException}, method fails with assertion error
+     * <em>NOTICE: This behaviour will be changed after REST layer response codes regulation</em></p>
+     *
+     * @param entity                  an entity class
+     * @param fieldName               a field, which should be changed
+     * @param incorrectValue          incorrect value for changing field
+     * @param expectedErrorStatusCode expected HTTP status code error
+     * @param <T>                     type of the entity <em>both of request and response</em>
+     * @param <V>                     type of the field
+     */
+    public static <T, V> void updateEntityWithIncorrectField(T entity, String fieldName, V incorrectValue,
+                                                             HttpStatus expectedErrorStatusCode) {
+        sendEntityWithIncorrectField(
+                entity,
+                fieldName,
+                incorrectValue,
+                restRootsMap.get(entity.getClass()) + UPDATE_PATH,
+                HttpMethod.PUT,
+                expectedErrorStatusCode);
+    }
+
+    /**
+     * Check sending of an entity with incorrect field (with incorrect value or with violating such constraints, as NotNull, Unique)
+     * to a given REST resource. Field is changed via java reflection mechanisms. <br>
      * Method checks for expected exception and, in a case of its' absence, it will fail with assertion error
      * <em>NOTICE: This behaviour will be changed after REST layer response codes regulation</em>
      *
-     * @param entity                  an entity (eg. mock entity supplier)
+     * @param entity                  an entity, which should be sent
      * @param fieldName               a field, which should be changed
      * @param incorrectValue          incorrect value for changing field
      * @param url                     URL of receiving POST request REST-resource
      * @param expectedErrorStatusCode expected HTTP status code error
      * @param <T>                     type of the entity <em>both of request and response</em>
-     * @param <V>                     type of the filed
+     * @param <V>                     type of the field
      */
-    public static <T, V> void sendEntityWithIncorrectField(T entity, String fieldName, V incorrectValue, String url,
-                                                           HttpMethod httpMethod, HttpStatus expectedErrorStatusCode)
-            throws NoSuchFieldException, IllegalAccessException {
-        setField(entity, fieldName, incorrectValue);
-        getBodyOfResponseToSendEntityRequest(entity, url, httpMethod, expectedErrorStatusCode);
-        fail("No expected exception occurs during sending of an entity with incorrect field");
+    private static <T, V> void sendEntityWithIncorrectField(T entity, String fieldName,
+                                                            V incorrectValue, String url, HttpMethod httpMethod,
+                                                            HttpStatus expectedErrorStatusCode) {
+        try {
+            setField(entity, fieldName, incorrectValue);
+            getBodyOfResponseToSendEntityRequest(entity, url, httpMethod, expectedErrorStatusCode);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            fail(e.toString());
+        }
     }
 
     /**
@@ -256,8 +381,7 @@ public final class RestRequests {
                     httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
                     HttpEntity<T> httpEntity = new HttpEntity<>(entity, httpHeaders);
 
-                    RestTemplate restTemplate = new RestTemplate();
-                    ResponseEntity<T> responseEntity = restTemplate.exchange(
+                    ResponseEntity<T> responseEntity = new RestTemplate().exchange(
                             url,
                             httpMethod,
                             httpEntity,

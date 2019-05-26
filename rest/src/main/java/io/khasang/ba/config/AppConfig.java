@@ -110,4 +110,9 @@ public class AppConfig {
     public CustomerRequestStageDao customerRequestStageDao() {
         return new CustomerRequestStageDaoImpl(CustomerRequestStage.class);
     }
+
+    @Bean
+    public CustomerRequestStageNameDao customerRequestStageNameDao() {
+        return new CustomerRequestStageNameDaoImpl(CustomerRequestStageName.class);
+    }
 }
