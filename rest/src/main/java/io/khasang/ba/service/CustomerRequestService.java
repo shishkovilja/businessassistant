@@ -11,7 +11,7 @@ public interface CustomerRequestService {
      * @param customerRequest = request for adding
      * @return created Request
      */
-    CustomerRequest addRequest(CustomerRequest customerRequest);
+    CustomerRequest addCustomerRequest(CustomerRequest customerRequest);
 
     /**
      * method for getting request by specific id
@@ -19,14 +19,14 @@ public interface CustomerRequestService {
      * @param id - request's id
      * @return request by id
      */
-    CustomerRequest getRequestById(long id);
+    CustomerRequest getCustomerRequestById(long id);
 
     /**
      * method for getting all requests
      *
      * @return all requests
      */
-    List<CustomerRequest> getAllRequests();
+    List<CustomerRequest> getAllCustomerRequests();
 
     /**
      * method for update request
@@ -34,7 +34,7 @@ public interface CustomerRequestService {
      * @param customerRequest - request's with updated params
      * @return updated request
      */
-    CustomerRequest updateRequest(CustomerRequest customerRequest);
+    CustomerRequest updateCustomerRequest(CustomerRequest customerRequest);
 
     /**
      * method for delete request by id
@@ -42,5 +42,5 @@ public interface CustomerRequestService {
      * @param id - request's id for delete
      * @return deleted request
      */
-    CustomerRequest deleteRequest(long id);
+    CustomerRequest deleteCustomerRequest(long id);
 }

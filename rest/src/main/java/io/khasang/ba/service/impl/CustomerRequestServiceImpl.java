@@ -15,27 +15,27 @@ public class CustomerRequestServiceImpl implements CustomerRequestService {
     private CustomerRequestDao customerRequestDao;
 
     @Override
-    public CustomerRequest addRequest(CustomerRequest customerRequest) {
+    public CustomerRequest addCustomerRequest(CustomerRequest customerRequest) {
         return customerRequestDao.add(customerRequest);
     }
 
     @Override
-    public CustomerRequest getRequestById(long id) {
+    public CustomerRequest getCustomerRequestById(long id) {
         return customerRequestDao.getById(id);
     }
 
     @Override
-    public List<CustomerRequest> getAllRequests() {
+    public List<CustomerRequest> getAllCustomerRequests() {
         return customerRequestDao.getAll();
     }
 
     @Override
-    public CustomerRequest updateRequest(CustomerRequest CustomerRequest) {
+    public CustomerRequest updateCustomerRequest(CustomerRequest CustomerRequest) {
         return customerRequestDao.update(CustomerRequest);
     }
 
     @Override
-    public CustomerRequest deleteRequest(long id) {
-        return customerRequestDao.delete(getRequestById(id));
+    public CustomerRequest deleteCustomerRequest(long id) {
+        return customerRequestDao.delete(getCustomerRequestById(id));
     }
 }
