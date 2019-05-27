@@ -1,9 +1,12 @@
 package io.khasang.ba.controller.utility;
 
+import com.sun.corba.se.impl.protocol.giopmsgheaders.TargetAddress;
 import io.khasang.ba.entity.*;
+import io.khasang.ba.entity.embeddable.Address;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -24,10 +27,12 @@ public final class MockFactory {
      * because its' supplier will be detected automatically
      */
     public static final Map<Class<?>, Supplier<?>> mockSuppliersMap = Collections.unmodifiableMap(new HashMap<Class<?>, Supplier<?>>() {{
+        put(Category.class, MockFactory::getMockCategory);
         put(Customer.class, MockFactory::getMockCustomer);
         put(CustomerRequestStage.class, MockFactory::getMockCustomerRequestStage);
         put(CustomerRequestStageName.class, MockFactory::getMockCustomerRequestStageName);
         put(Operator.class, MockFactory::getMockOperator);
+        put(PointOfInterest.class, MockFactory::getMockPointOfInterest);
     }});
 
     //Mock data for Customer
@@ -52,6 +57,24 @@ public final class MockFactory {
     //Mock data for CustomerRequestStageName
     private static final String TEST_CUSTOMER_REQUEST_STAGE_NAME_NAME_PREFIX = "TEST_STAGE_NAME_PREFIX_";
     private static final String TEST_CUSTOMER_REQUEST_STAGE_NAME_DESCRIPTION_PREFIX = "Customer's request stage name: ";
+
+    //Mock data for PointOfInterest
+    private static final String TEST_POINT_OF_INTEREST_NAME = "OOO \"CALAMBUR\"";
+    private static final String TEST_POINT_OF_INTEREST_CATEGORY = "SuperMarket";
+    private static final LocalTime TEST_POINT_OF_INTEREST_STRAT_WORK = LocalTime.of(9, 30);
+    private static final Integer TEST_POINT_OF_INTEREST_WORK_TIME = 9 * 60;
+    private static final String TEST_POINT_OF_INTEREST_ADDRESS = "Moscow, str. Pushkina 10";
+    private static final String TEST_POINT_OF_INTEREST_REGION = "Moscow region";
+    private static final String TEST_POINT_OF_INTEREST_CITY = "Moscow";
+    private static final String TEST_POINT_OF_INTEREST_STREET = "Pushkina";
+    private static final String TEST_POINT_OF_INTEREST_POSTCODE = "111333";
+    private static final String TEST_POINT_OF_INTEREST_BUILD = "134";
+    private static final String TEST_POINT_OF_INTEREST_ROOM = "10";
+    private static final Double TEST_POINT_OF_INTEREST_LATITUDE = 10.321562D;
+    private static final Double TEST_POINT_OF_INTEREST_LONGITUDE = 25.321456D;
+
+    //Mock data for Category
+    private static final String TEST_CATEGORY_NAME_PREFIX = "CATEGORY_IS_";
 
     /**
      * Create mock {@link Customer} instance
@@ -202,5 +225,75 @@ public final class MockFactory {
         newCustomerRequestStageName.setId(oldCustomerRequestStageName.getId());
 
         return newCustomerRequestStageName;
+    }
+
+    /**
+     * Create mock {@link PointOfInterest} instance
+     *
+     * @return mock {@link PointOfInterest} instance
+     */
+    public static PointOfInterest getMockPointOfInterest() {
+        PointOfInterest pointOfInterest = new PointOfInterest();
+        Address address = new Address();
+
+        pointOfInterest.setName(TEST_POINT_OF_INTEREST_NAME);
+        pointOfInterest.setStartWork(TEST_POINT_OF_INTEREST_STRAT_WORK);
+        pointOfInterest.setCategory(TEST_POINT_OF_INTEREST_CATEGORY);
+        pointOfInterest.setWorkTime(TEST_POINT_OF_INTEREST_WORK_TIME);
+        pointOfInterest.setAddress(address);
+        address.setRegion(TEST_POINT_OF_INTEREST_REGION);
+        address.setStreet(TEST_POINT_OF_INTEREST_STREET);
+        address.setCity(TEST_POINT_OF_INTEREST_CITY);
+        address.setBuild(TEST_POINT_OF_INTEREST_BUILD);
+        address.setLatitude(TEST_POINT_OF_INTEREST_LATITUDE);
+        address.setLongitude(TEST_POINT_OF_INTEREST_LONGITUDE);
+        address.setPostcode(TEST_POINT_OF_INTEREST_POSTCODE);
+        address.setRoom(TEST_POINT_OF_INTEREST_ROOM);
+
+        return pointOfInterest;
+    }
+
+    /**
+     * Change existing {@link PointOfInterest}. Firstly, new mock entity is made and then copying of necessary
+     * fields from old entity (generally with constraints Id, Unique, NaturalId etc) is performed.
+     *
+     * @param oldPointOfInterest old entity
+     * @return changed entity
+     */
+    public static PointOfInterest getChangedMockPointOfInterest(PointOfInterest oldPointOfInterest) {
+        PointOfInterest newPointOfInterest = getMockPointOfInterest();
+
+        newPointOfInterest.setId(oldPointOfInterest.getId());
+
+        return newPointOfInterest;
+    }
+
+    /**
+     * Create mock {@link Category} instance
+     *
+     * @return mock {@link Category} instance
+     */
+    public static Category getMockCategory() {
+        Category category = new Category();
+
+        category.setName(TEST_CATEGORY_NAME_PREFIX + UUID.randomUUID().toString());
+
+        return category;
+    }
+
+    /**
+     * Change existing {@link Category}. Firstly, new mock entity is made and then copying of necessary
+     * fields from old entity (generally with constraints Id, Unique, NaturalId etc) is performed.
+     *
+     * @param oldCategory old entity
+     * @return changed entity
+     */
+    public static Category getChangedMockCategory(Category oldCategory) {
+        Category newCategory = getMockCategory();
+
+        newCategory.setId(oldCategory.getId());
+        newCategory.setName(oldCategory.getName());
+
+        return newCategory;
     }
 }

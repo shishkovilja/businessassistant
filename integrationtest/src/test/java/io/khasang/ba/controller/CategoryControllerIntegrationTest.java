@@ -1,232 +1,233 @@
 package io.khasang.ba.controller;
 
 import io.khasang.ba.entity.Category;
-import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpStatus;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import static io.khasang.ba.controller.utility.MockFactory.getChangedMockCategory;
+import static io.khasang.ba.controller.utility.MockFactory.getMockCategory;
+import static io.khasang.ba.controller.utility.RestRequests.*;
+import static org.junit.Assert.*;
+
+/**
+ * Integration test for Category REST layer
+ */
 public class CategoryControllerIntegrationTest {
-    private final String LAN_ADDRESS = "localhost";
-    private final String PORT = "8080";
-    private final String ROOT = "http://" + LAN_ADDRESS + ":" + PORT + "/category";
-    private final String ADD = "/add";
-    private final String GET = "/get";
-    private final String ID = "/{id}";
-    private final String ALL = "/all";
-    private final String DELETE = "/delete";
-    private final String UPDATE = "/update";
-
 
     /**
-     * Test correct delete record into DB
+     * Check, that {@link CategoryController#getCategoryById(long)} gives NOT FOUND HTTP response
+     * in the case of attempt to get nonexistent entity, i.e. entity with <em>nonexistent Id</em>.
      */
     @Test
-    public void deleteCategory() {
-        Category category;
-        ResponseEntity<Category> responseEntity;
-        category = prefillCategory();
-        category = createCategory(category);
-        responseEntity = deleteCategoryById(category.getId());
-
-        // Check response is OK
-        Assert.assertEquals("Request is bad. Must be OK", "OK", responseEntity.getStatusCode().getReasonPhrase());
-
-        // Record must doesn't find into DB
-        Assert.assertNull("Entity doesn't delete into DB", getCategoryById(category.getId()));
+    public void checkGetNonExistentCategory() {
+        getEntityById(Long.MAX_VALUE, Category.class, HttpStatus.NOT_FOUND);
     }
 
     /**
-     * Test record entity
-     * Requset must be record. Data don't count
+     * Check both {@link CategoryController#getCategoryById(long)} and
+     * {@link CategoryController#addCategory(Category)} methods,
+     * i.e. HTTP methods GET and POST, providing possibilities to get an {@link Category} entity
+     * from REST resource and to add it to the resource.
      */
     @Test
-    public void addCategory() {
-        Category category = prefillCategory();
-        Category responseBodyCategory = createCategory(category);
+    public void checkAddCategory() {
 
-        // Response create not null
-        Assert.assertNotNull("Response must be Entity", responseBodyCategory);
-        deleteCategoryById(responseBodyCategory.getId());
+        //POST to REST
+        Category createdCategory = getCreatedCategory();
+
+        // GET from REST
+        Category receivedCategory =
+                getEntityById(
+                        createdCategory.getId(),
+                        Category.class,
+                        HttpStatus.OK);
+
+        assertEquals(createdCategory, receivedCategory);
     }
 
     /**
-     * Read entity by Id
-     * @param id - id Entity
-     * @return entity
+     * Check {@link CategoryController#getAllCategories()} method, i.e. HTTP method GET, used to
+     * get a list of {@link Category} entities from REST resource
+     * entities.<br>
+     * <p>First of all, continuous addition of {@link Category} entities with amount equal to
+     * {@link io.khasang.ba.controller.utility.RestRequests#TEST_ENTITIES_AMOUNT} is performed.
+     * Secondly, top TEST_ENTITIES_AMOUNT of entities, obtained from response body, received from REST-resource, placed at
+     * {@link io.khasang.ba.controller.utility.RestRequests#GET_ALL_PATH}), compared with list of
+     * previously added entities.
+     * </p>
      */
-    private Category getCategoryById(long id) {
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Category> responseEntity = restTemplate.exchange(
-                ROOT + GET + ID,
-                HttpMethod.GET,
-                null,
+    @Test
+    public void checkGetAllCategories() {
+
+        // Create list of entities
+        List<Category> createdCategorysList =
+                getCreatedEntitiesList(
+                        Category.class,
+                        TEST_ENTITIES_AMOUNT,
+                        HttpStatus.CREATED);
+
+        // Receive all entities from REST
+        List<Category> allCategorys =
+                getAllEntitiesList(Category.class, HttpStatus.OK);
+
+        // Check last TEST_ENTITIES_AMOUNT and assert for equality
+        List<Category> receivedCategorysSubList =
+                allCategorys.subList(allCategorys.size() - TEST_ENTITIES_AMOUNT,
+                        allCategorys.size());
+
+        assertEquals(createdCategorysList, receivedCategorysSubList);
+    }
+
+    /**
+     * Check {@link CategoryController#updateCategory(Category)}, i.e. HTTP method
+     * PUT, used to update an {@link Category} entity on REST resource
+     */
+    @Test
+    public void checkUpdateCategory() {
+
+        // POST, then UPDATE in REST
+        Category updatedCategory = getUpdatedCategory();
+
+        //Get it from REST, check id and assertEquals
+        Category receivedCategory =
+                getEntityById(
+                        updatedCategory.getId(),
+                        Category.class,
+                        HttpStatus.OK);
+
+        assertNotNull(receivedCategory.getId());
+        assertEquals(updatedCategory, receivedCategory);
+    }
+
+    /**
+     * Check {@link CategoryController#deleteCategory(long)}, i.e. HTTP method
+     * DELETE, used to delete an {@link Category} entity on REST resource
+     */
+    @Test
+    public void checkCategoryDelete() {
+        Category createdCategory = getCreatedCategory();
+
+        getResponseFromEntityDeleteRequest(
+                createdCategory.getId(),
                 Category.class,
-                id
-        );
-        Assert.assertEquals("Request is bad. Must be OK", "OK", responseEntity.getStatusCode().getReasonPhrase());
+                HttpStatus.NO_CONTENT);
 
-        return responseEntity.getBody();
+        assertNull(getEntityById(
+                createdCategory.getId(),
+                Category.class,
+                HttpStatus.NOT_FOUND));
+    }
+
+    //Addition constraints
+
+    /**
+     * Check unique constraint for <em>name</em> field while adding {@link Category}
+     */
+    @Test
+    public void checkUniqueConstraintForName_whenCategoryRequestStageAdd() {
+        addWithIncorrectField("name", getCreatedCategory().getName());
     }
 
     /**
-     * Add new Address into DB
-     * Test equal source Address with added
+     * Check not blank constraint for <em>name</em> while adding {@link Category}
      */
     @Test
-    public void addCategoryWithEqualContent() {
-        Category category;
-        Category responseBodyCategory;
-        category = prefillCategory();
+    public void checkNotBlankConstraintForName_whenCategoryRequestStageAdd() {
+        addWithIncorrectField("name", null);
+        addWithIncorrectField("name", "");
+        addWithIncorrectField("name", " ");
+        addWithIncorrectField("name", "  ");
+        addWithIncorrectField("name", "\t");
+        addWithIncorrectField("name", "\n");
+    }
 
-        responseBodyCategory = createCategory(category);
+    // Update constraints
 
-        // Equals two entity created and template
-        Assert.assertTrue("Fields don't equals. Must be equals", equals(category, responseBodyCategory));
-        deleteCategoryById(responseBodyCategory.getId());
+    /**
+     * Check unique constraint for <em>name</em> while updating {@link Category}
+     */
+    @Test
+    public void checkUniqueConstraintForName_whenCategoryRequestStageUpdate() {
+        updateWithIncorrectField("name", getCreatedCategory().getName());
     }
 
     /**
-     * Entity must update something self fields
+     * Check not blank constraint for <em>name</em> while updating {@link Category}
      */
     @Test
-    public void updateCategory() {
-        Category category;
-        Category responseCreatedCategory;
-        Category responseUpdateCategory;
-
-        category = prefillCategory();
-        responseCreatedCategory = createCategory(category);
-
-        // Change data
-        category.setName("name2");
-        category.setId(responseCreatedCategory.getId());
-        responseUpdateCategory = updateCategory(category);
-
-        // Created address mustn't be equals updated address
-        Assert.assertFalse("Fields are equals. They must be don't equals", equals(responseCreatedCategory, responseUpdateCategory));
-
-        // Delete entity into DB
-        deleteCategoryById(responseUpdateCategory.getId());
+    public void checkNotBlankConstraintForName_whenCategoryRequestStageUpdate() {
+        updateWithIncorrectField("name", null);
+        updateWithIncorrectField("name", "");
+        updateWithIncorrectField("name", " ");
+        updateWithIncorrectField("name", "  ");
+        updateWithIncorrectField("name", "\t");
+        updateWithIncorrectField("name", "\n");
     }
 
-    @Test
-    public void getAllCategories() {
-        List<Category> categories;
-
-        categories = new ArrayList<>();
-        categories.add(createCategory(prefillCategory()));
-        categories.add(createCategory(prefillCategory()));
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<List<Category>> responseEntity = restTemplate.exchange(
-                ROOT + GET + ALL,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<List<Category>>() {
-                }
-        );
-        Assert.assertEquals("Request is bad. Must be OK", "OK", responseEntity.getStatusCode().getReasonPhrase());
-        Assert.assertNotNull("Not all addresses were recieve. Must be more", categories.get(0));
-        Assert.assertNotNull("Not all addresses were recieve. Must be more", categories.get(1));
-        deleteCategoryById(categories.get(0).getId());
-        deleteCategoryById(categories.get(1).getId());
-    }
+    // Utility methods
 
     /**
-     * Create record into DB
-     * @param entity create entity
-     * @return responseBody
+     * Create mock {@link Category} instance, and add (i.e. POST) it to a REST resource
+     *
+     * @return added to REST resource entity
      */
-    private Category createCategory(Category entity) {
-        RestTemplate restTemplate;
-        HttpHeaders httpHeaders;
-        HttpEntity<Category> httpEntity;
-        Category createdCategory;
+    private Category getCreatedCategory() {
+        Category Category = getMockCategory();
 
-        restTemplate = new RestTemplate();
-        httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-        httpEntity = new HttpEntity<>(entity, httpHeaders);
+        Category createdCategory =
+                getResponseFromEntityAddRequest(Category, HttpStatus.CREATED);
 
-        createdCategory = restTemplate.exchange(
-                ROOT + ADD,
-                HttpMethod.POST,
-                httpEntity,
-                Category.class
-        ).getBody();
+        assertNotNull(createdCategory.getId());
+        Category.setId(createdCategory.getId());
+        assertEquals(Category, createdCategory);
 
         return createdCategory;
     }
 
     /**
-     * Update record into DB
-     * @param entity update entity
-     * @return response body
+     * Update existing {@link Category} entity at REST resource. Firstly, add new mock entity and then
+     * PUT updated entity to REST resource
+     *
+     * @return updated at REST resource instance of entity
      */
-    private Category updateCategory(Category entity) {
-        RestTemplate restTemplate;
-        HttpHeaders httpHeaders;
-        HttpEntity<Category> httpEntity;
-        Category updateCategory;
+    private Category getUpdatedCategory() {
+        Category createdCategory = getCreatedCategory();
 
-        restTemplate = new RestTemplate();
-        httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-        httpEntity = new HttpEntity<>(entity, httpHeaders);
+        Category updatedCategory =
+                getResponseFromEntityUpdateRequest(
+                        getChangedMockCategory(createdCategory),
+                        HttpStatus.OK);
 
-        updateCategory = restTemplate.exchange(
-                ROOT + UPDATE,
-                HttpMethod.PUT,
-                httpEntity,
-                Category.class
-        ).getBody();
+        assertEquals(createdCategory.getId(), updatedCategory.getId());
 
-        return  updateCategory;
+        return updatedCategory;
     }
 
     /**
-     * Delete entity into DB by Id
-     * @param id - id entity
-     * @return response action
+     * Utility method for checking of some constraints during <em>entity addition</em>, which has simpler signature
+     * with reduced number of parameters. It could be used instead of
+     * direct call of {@link io.khasang.ba.controller.utility.RestRequests#addEntityWithIncorrectField(Class, String, Object, HttpStatus)}.
+     *
+     * @param fieldName      field, which should be set with incorrect value
+     * @param incorrectValue incorrect value
+     * @param <V>            type of the field
      */
-    private ResponseEntity<Category> deleteCategoryById(long id) {
-        RestTemplate restTemplate;
-        restTemplate = new RestTemplate();
-
-        return restTemplate.exchange(
-                ROOT + DELETE + ID,
-                HttpMethod.DELETE,
-                null,
-                Category.class,
-                id
-        );
+    private <V> void addWithIncorrectField(String fieldName, V incorrectValue) {
+        addEntityWithIncorrectField(Category.class, fieldName, incorrectValue, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
-     * Create and fill Category
-     * @return created Category
+     * Utility method for checking of some constraints during <em>entity update</em>, which has simpler signature
+     * with reduced number of parameters. It could be used instead of
+     * direct call of {@link io.khasang.ba.controller.utility.RestRequests#updateEntityWithIncorrectField(Class, String, Object, HttpStatus)}.
+     *
+     * @param fieldName      field, which should be set with incorrect value
+     * @param incorrectValue incorrect value
+     * @param <V>            type of the field
      */
-    private Category prefillCategory() {
-        return new Category("Hospital");
-    }
-
-    /**
-     * Compare Category entity
-     * @param source - source entity
-     * @param target - equals entity
-     * @return is equals?
-     */
-    private boolean equals(Category source, Category target) {
-        boolean isCheck = false;
-
-        if ( source.getName().equals(target.getName())) {
-            isCheck = true;
-        }
-
-        return isCheck;
+    private <V> void updateWithIncorrectField(String fieldName, V incorrectValue) {
+        updateEntityWithIncorrectField(Category.class, fieldName, incorrectValue, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
