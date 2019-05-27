@@ -97,11 +97,6 @@ public class AppConfig {
     }
 
     @Bean
-    public AddressDao addressDao() {
-        return new AddressDaoImpl(Address.class);
-    }
-
-    @Bean
     public CategoryDao categoryDao() {
         return new CategoryDaoImpl(Category.class);
     }
