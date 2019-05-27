@@ -2,8 +2,8 @@ package io.khasang.ba.entity.embeddable;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.Embeddable;
 
@@ -18,18 +18,17 @@ import javax.persistence.Embeddable;
 public class Address {
     private String region;
 
-    @NonNull
+    @NotBlank
     private String city;
 
-    @NonNull
+    @NotBlank
     private String street;
 
     private String postcode;
 
-    @NonNull
+    @NotBlank
     private String build;
 
-    @NonNull
     private String room;
 
     @ColumnDefault(value = "0.000000")

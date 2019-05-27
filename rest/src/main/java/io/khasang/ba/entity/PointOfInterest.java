@@ -1,11 +1,11 @@
 package io.khasang.ba.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.khasang.ba.entity.embeddable.Address;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
 import java.time.LocalTime;
@@ -24,8 +24,7 @@ public class PointOfInterest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NonNull
-    @NotEmpty
+    @NotBlank
     private String name;
 
     @ColumnDefault(value = "'unknown'")
@@ -40,6 +39,6 @@ public class PointOfInterest {
     @Column(name = "work_time")
     private Integer workTime;
 
-    @NonNull
-    private String address;
+    @Embedded
+    private Address address;
 }
