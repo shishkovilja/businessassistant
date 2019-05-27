@@ -3,45 +3,44 @@ package io.khasang.ba.controller;
 import io.khasang.ba.entity.PointOfInterest;
 import io.khasang.ba.service.PointOfInterestService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("/pointOfInterest")
 public class PointOfInterestController {
 
     @Autowired
     PointOfInterestService pointOfInterestService;
 
-    @RequestMapping(value = "/add", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
-    @ResponseBody
+    @ResponseStatus(code = HttpStatus.CREATED)
+    @PostMapping(value = "/add", produces = "application/json;charset=utf-8")
     public PointOfInterest addPointOfInterest(@RequestBody PointOfInterest pointOfInterest) {
         pointOfInterestService.addPointOfInterest(pointOfInterest);
         return pointOfInterest;
     }
 
-    @ResponseBody
-    @RequestMapping(value = "/get/{id}", method = RequestMethod.GET, produces = "application/json;charset=utf-8")
-    public PointOfInterest getPointOfInterestById(@PathVariable(value = "id") long id) {
-        return pointOfInterestService.getPointOfInterestById(id);
+    @GetMapping(value = "/get/{id}", produces = "application/json;charset=utf-8")
+    public ResponseEntity<PointOfInterest> getPointOfInterestById(@PathVariable(value = "id") long id) {
+        PointOfInterest pointOfInterest = pointOfInterestService.getPointOfInterestById(id);
+        return pointOfInterest == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(pointOfInterest);
     }
 
-    @ResponseBody
-    @RequestMapping(value = "/get/all", method = RequestMethod.GET, produces = "application/json;charset=utf-8")
-    public List<PointOfInterest> getAllPointOfInterests() {
-        return pointOfInterestService.getAllPointOfInterest();
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "/update", method = RequestMethod.PUT, produces = "application/json;charset=utf-8")
+    @PutMapping(value = "/update", produces = "application/json;charset=utf-8")
     public PointOfInterest updatePointOfInterest(@RequestBody PointOfInterest pointOfInterest) {
         return pointOfInterestService.updatePointOfInterest(pointOfInterest);
     }
 
-    @ResponseBody
-    @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE, produces = "application/json;charset=utf-8")
+    @GetMapping(value = "/get/all", produces = "application/json;charset=utf-8")
+    public List<PointOfInterest> getAllPointOfInterests() {
+        return pointOfInterestService.getAllPointOfInterest();
+    }
+
+    @ResponseStatus(code = HttpStatus.NO_CONTENT)
+    @DeleteMapping(value = "/delete/{id}", produces = "application/json;charset=utf-8")
     public PointOfInterest deletePointOfInterest(@PathVariable(value = "id") long id) {
         return pointOfInterestService.deletePointOfInterest(id);
     }
