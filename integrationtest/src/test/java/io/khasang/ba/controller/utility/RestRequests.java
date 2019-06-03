@@ -1,9 +1,6 @@
 package io.khasang.ba.controller.utility;
 
-import io.khasang.ba.entity.Customer;
-import io.khasang.ba.entity.CustomerRequestStage;
-import io.khasang.ba.entity.CustomerRequestStageName;
-import io.khasang.ba.entity.Operator;
+import io.khasang.ba.entity.*;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.web.client.HttpClientErrorException;
@@ -39,6 +36,7 @@ public final class RestRequests {
 
     // Roots of REST resources
     public static final String CUSTOMER_ROOT = REST_ROOT + "customer";
+    public static final String CUSTOMER_REQUEST_ROOT = REST_ROOT + "customer_request";
     public static final String CUSTOMER_REQUEST_STAGE_ROOT = REST_ROOT + "customer_request_stage";
     public static final String CUSTOMER_REQUEST_STAGE_NAME_ROOT = REST_ROOT + "customer_request_stage_name";
     public static final String OPERATOR_ROOT = REST_ROOT + "operator";
@@ -56,6 +54,7 @@ public final class RestRequests {
      */
     public static final Map<Class<?>, String> restRootsMap = Collections.unmodifiableMap(new HashMap<Class<?>, String>() {{
         put(Customer.class, CUSTOMER_ROOT);
+        put(CustomerRequest.class, CUSTOMER_REQUEST_ROOT);
         put(CustomerRequestStage.class, CUSTOMER_REQUEST_STAGE_ROOT);
         put(CustomerRequestStageName.class, CUSTOMER_REQUEST_STAGE_NAME_ROOT);
         put(Operator.class, OPERATOR_ROOT);
@@ -67,6 +66,8 @@ public final class RestRequests {
     public static final Map<Class<?>, ParameterizedTypeReference<? extends List>> typeReferencesMap =
             new HashMap<Class<?>, ParameterizedTypeReference<? extends List>>() {{
                 put(Customer.class, new ParameterizedTypeReference<List<Customer>>() {
+                });
+                put(CustomerRequest.class, new ParameterizedTypeReference<List<CustomerRequest>>() {
                 });
                 put(CustomerRequestStage.class, new ParameterizedTypeReference<List<CustomerRequestStage>>() {
                 });

@@ -72,8 +72,8 @@ public class AppConfig {
     }
 
     @Bean
-    public RequestDao requestDao() {
-        return new RequestDaoImpl(Request.class);
+    public CustomerRequestDao requestDao() {
+        return new CustomerRequestDaoImpl(CustomerRequest.class);
     }
 
     @Bean
