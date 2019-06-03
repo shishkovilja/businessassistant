@@ -13,7 +13,7 @@ import java.util.List;
  * Controller for REST layer of CustomerRequestStage management: provided POST, GET, PUT and DELETE functionality
  */
 @RestController
-@RequestMapping(value = "/customer_request_stage")
+@RequestMapping(value = "/customer_request_stage", produces = "application/json;charset=utf-8")
 // TODO ControllerAdvice and throwing of an exception in service layer
 public class CustomerRequestStageController {
 
@@ -27,7 +27,7 @@ public class CustomerRequestStageController {
     }
 
     @GetMapping(value = "/get/{id}")
-    public ResponseEntity getCustomerRequestStageById(@PathVariable(value = "id") long id) {
+    public ResponseEntity<CustomerRequestStage> getCustomerRequestStageById(@PathVariable(value = "id") long id) {
         CustomerRequestStage customerRequestStage = customerRequestStageService.getCustomerRequestStageById(id);
 
         return customerRequestStage != null ?
