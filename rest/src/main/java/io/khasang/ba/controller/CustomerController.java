@@ -3,7 +3,8 @@ package io.khasang.ba.controller;
 import io.khasang.ba.entity.Customer;
 import io.khasang.ba.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,40 +12,40 @@ import java.util.List;
 /**
  * Controller for REST layer of Customer management: provided POST, GET, PUT and DELETE functionality
  */
-@Controller
+@RestController
 @RequestMapping(value = "/customer")
+// TODO ControllerAdvice and throwing of an exception in service layer
 public class CustomerController {
 
     @Autowired
     private CustomerService CustomerService;
 
-    @RequestMapping(value = "/add", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
-    @ResponseBody
+    @PostMapping(value = "/add", consumes = "application/json;charset=utf-8")
+    @ResponseStatus(HttpStatus.CREATED)
     public Customer addCustomer(@RequestBody Customer newCustomer) {
         return CustomerService.addCustomer(newCustomer);
     }
 
-    @RequestMapping(value = "/get/{id}", method = RequestMethod.GET, produces = "application/json;charset=utf-8")
-    @ResponseBody
-    public Customer getCustomerById(@PathVariable(value = "id") long id) {
-        return CustomerService.getCustomerById(id);
+    @GetMapping(value = "/get/{id}")
+    public ResponseEntity<Customer> getCustomerById(@PathVariable(value = "id") long id) {
+        Customer customer = CustomerService.getCustomerById(id);
+
+        return (customer != null) ? ResponseEntity.ok(customer) : ResponseEntity.notFound().build();
     }
 
-    @RequestMapping(value = "/update", method = RequestMethod.PUT, produces = "application/json;charset=utf-8")
-    @ResponseBody
+    @PutMapping(value = "/update", consumes = "application/json;charset=utf-8")
     public Customer updateCustomer(@RequestBody Customer updatedCustomer) {
         return CustomerService.updateCustomer(updatedCustomer);
     }
 
-    @RequestMapping(value = "/get/all", method = RequestMethod.GET, produces = "application/json;charset=utf-8")
-    @ResponseBody
+    @GetMapping(value = "/get/all")
     public List<Customer> getAllCustomers() {
         return CustomerService.getAllCustomers();
     }
 
-    @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE, produces = "application/json;charset=utf-8")
-    @ResponseBody
-    public Customer deleteCustomer(@PathVariable(value = "id") long id) {
-        return CustomerService.deleteCustomer(id);
+    @DeleteMapping(value = "/delete/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteCustomer(@PathVariable(value = "id") long id) {
+        CustomerService.deleteCustomer(id);
     }
 }

@@ -1,5 +1,6 @@
 package io.khasang.ba.controller.utility;
 
+import io.khasang.ba.entity.Customer;
 import io.khasang.ba.entity.CustomerRequestStage;
 import io.khasang.ba.entity.CustomerRequestStageName;
 import io.khasang.ba.entity.Operator;
@@ -37,6 +38,7 @@ public final class RestRequests {
     public static String REST_ROOT = "http://localhost:8080/";
 
     // Roots of REST resources
+    public static final String CUSTOMER_ROOT = REST_ROOT + "customer";
     public static final String CUSTOMER_REQUEST_STAGE_ROOT = REST_ROOT + "customer_request_stage";
     public static final String CUSTOMER_REQUEST_STAGE_NAME_ROOT = REST_ROOT + "customer_request_stage_name";
     public static final String OPERATOR_ROOT = REST_ROOT + "operator";
@@ -53,6 +55,7 @@ public final class RestRequests {
      * of the REST resource, because it will be detected automatically
      */
     public static final Map<Class<?>, String> restRootsMap = Collections.unmodifiableMap(new HashMap<Class<?>, String>() {{
+        put(Customer.class, CUSTOMER_ROOT);
         put(CustomerRequestStage.class, CUSTOMER_REQUEST_STAGE_ROOT);
         put(CustomerRequestStageName.class, CUSTOMER_REQUEST_STAGE_NAME_ROOT);
         put(Operator.class, OPERATOR_ROOT);
@@ -63,6 +66,8 @@ public final class RestRequests {
      */
     public static final Map<Class<?>, ParameterizedTypeReference<? extends List>> typeReferencesMap =
             new HashMap<Class<?>, ParameterizedTypeReference<? extends List>>() {{
+                put(Customer.class, new ParameterizedTypeReference<List<Customer>>() {
+                });
                 put(CustomerRequestStage.class, new ParameterizedTypeReference<List<CustomerRequestStage>>() {
                 });
                 put(CustomerRequestStageName.class, new ParameterizedTypeReference<List<CustomerRequestStageName>>() {
@@ -271,6 +276,33 @@ public final class RestRequests {
                 fieldName,
                 incorrectValue,
                 restRootsMap.get(entityClass) + UPDATE_PATH,
+                HttpMethod.PUT,
+                expectedErrorStatusCode);
+    }
+
+    /**
+     * <p>Check update of an entity with incorrect field (with incorrect value or with violating such constraints, as NotNull, Unique)
+     * at corresponding REST resource, which path is detected by class by means of {@link #restRootsMap}.
+     * Field value is set via java reflection mechanisms.</p>
+     * <p>Difference with {@link #updateEntityWithIncorrectField(Class, String, Object, HttpStatus)} consist in that this method
+     * performs update for <em>properly created entity from REST resource</em>.
+     * <p>In a case of absence of {@link HttpClientErrorException} or {@link HttpServerErrorException}, method fails with assertion error
+     * <em>NOTICE: This behaviour will be changed after REST layer response codes regulation</em></p>
+     *
+     * @param entity                  an entity class
+     * @param fieldName               a field, which should be changed
+     * @param incorrectValue          incorrect value for changing field
+     * @param expectedErrorStatusCode expected HTTP status code error
+     * @param <T>                     type of the entity <em>both of request and response</em>
+     * @param <V>                     type of the field
+     */
+    public static <T, V> void updateEntityWithIncorrectField(T entity, String fieldName, V incorrectValue,
+                                                             HttpStatus expectedErrorStatusCode) {
+        sendEntityWithIncorrectField(
+                entity,
+                fieldName,
+                incorrectValue,
+                restRootsMap.get(entity.getClass()) + UPDATE_PATH,
                 HttpMethod.PUT,
                 expectedErrorStatusCode);
     }

@@ -32,13 +32,11 @@ public final class MockFactory {
 
     //Mock data for Customer
     private static final String TEST_CUSTOMER_LOGIN_PREFIX = "TEST_CUSTOMER_";
-    private static final String TEST_CUSTOMER_RAW_PASSWORD = "123tEsT#";
     private static final String TEST_CUSTOMER_EMAIL_SUFFIX = "@ba.khasang.io";
-    private static final String TEST_CUSTOMER_FULL_NAME = "Ivan Petrov";
-    private static final LocalDate TEST_CUSTOMER_BIRTHDATE = LocalDate.of(1986, 8, 26);
-    private static final String TEST_CUSTOMER_COUNTRY = "Russia";
-    private static final String TEST_CUSTOMER_CITY = "Saint Petersburg";
-    private static final String TEST_CUSTOMER_ABOUT = "Another one mock test customer";
+    private static final String TEST_CUSTOMER_FULL_NAME_PREFIX = "Ivan Petrov ";
+    private static final String TEST_CUSTOMER_COUNTRY_PREFIX = "Russia ";
+    private static final String TEST_CUSTOMER_CITY_PREFIX = "Saint Petersburg ";
+    private static final String TEST_CUSTOMER_ABOUT_PREFIX = "Another one mock test customer";
 
     //Mock data for Operator
     private static final String TEST_OPERATOR_LOGIN_PREFIX = "TEST_OPERATOR_";
@@ -63,21 +61,41 @@ public final class MockFactory {
      * @return mock customer instance
      */
     public static Customer getMockCustomer() {
+        Random random = new Random();
         Customer customer = new Customer();
         CustomerInformation customerInformation = new CustomerInformation();
 
         customer.setLogin(TEST_CUSTOMER_LOGIN_PREFIX + UUID.randomUUID().toString());
-        customer.setPassword(TEST_CUSTOMER_RAW_PASSWORD);
+        customer.setPassword(UUID.randomUUID().toString());
         customer.setEmail(UUID.randomUUID().toString() + TEST_CUSTOMER_EMAIL_SUFFIX);
         customer.setCustomerInformation(customerInformation);
 
-        customerInformation.setFullName(TEST_CUSTOMER_FULL_NAME);
-        customerInformation.setBirthDate(TEST_CUSTOMER_BIRTHDATE);
-        customerInformation.setCountry(TEST_CUSTOMER_COUNTRY);
-        customerInformation.setCity(TEST_CUSTOMER_CITY);
-        customerInformation.setAbout(TEST_CUSTOMER_ABOUT);
+        customerInformation.setFullName(TEST_CUSTOMER_FULL_NAME_PREFIX + UUID.randomUUID().toString());
+        customerInformation.setBirthDate(LocalDate.ofYearDay(
+                1930 + random.nextInt(71),
+                1 + random.nextInt(365)));
+        customerInformation.setCountry(TEST_CUSTOMER_COUNTRY_PREFIX + UUID.randomUUID().toString());
+        customerInformation.setCity(TEST_CUSTOMER_CITY_PREFIX + UUID.randomUUID().toString());
+        customerInformation.setAbout(TEST_CUSTOMER_ABOUT_PREFIX + UUID.randomUUID().toString());
 
         return customer;
+    }
+
+    /**
+     * Change existing {@link Customer}. Firstly, new mock entity is made and then copying of necessary
+     * fields from old entity (generally with constraints Id, Unique, NaturalId etc) is performed.
+     *
+     * @param oldCustomer old entity
+     * @return changed entity
+     */
+    public static Customer getChangedMockCustomer(Customer oldCustomer) {
+        Customer newCustomer = getMockCustomer();
+
+        newCustomer.setId(oldCustomer.getId());
+        newCustomer.setLogin(oldCustomer.getLogin());
+        newCustomer.setRegistrationTimestamp(oldCustomer.getRegistrationTimestamp());
+
+        return newCustomer;
     }
 
     /**
