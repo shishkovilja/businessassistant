@@ -40,13 +40,11 @@ public final class MockFactory {
 
     //Mock data for Operator
     private static final String TEST_OPERATOR_LOGIN_PREFIX = "TEST_OPERATOR_";
-    private static final String TEST_OPERATOR_RAW_PASSWORD = "123tEsT#";
-    private static final String TEST_OPERATOR_EMAIL_SUFFIX = "@ba.khasang.io";
-    private static final String TEST_OPERATOR_FULL_NAME = "Ivan Petrov";
-    private static final LocalDate TEST_OPERATOR_BIRTHDATE = LocalDate.of(1986, 8, 26);
-    private static final String TEST_OPERATOR_COUNTRY = "Russia";
-    private static final String TEST_OPERATOR_CITY = "Saint Petersburg";
-    private static final String TEST_OPERATOR_ABOUT = "Another one mock test operator";
+    private static final String TEST_OPERATOR_EMAIL_SUFFIX = "@operator.khasang.io";
+    private static final String TEST_OPERATOR_FULL_NAME_PREFIX = "Barak Obama ";
+    private static final String TEST_OPERATOR_COUNTRY_PREFIX = "USA ";
+    private static final String TEST_OPERATOR_CITY_PREFIX = "New York ";
+    private static final String TEST_OPERATOR_ABOUT_PREFIX = "Another one mock test operator ";
 
     //Mock data for CustomerRequestStage
     private static final String TEST_CUSTOMER_REQUEST_STAGE_DESCRIPTION = "Test description of the customer's request stage";
@@ -104,21 +102,41 @@ public final class MockFactory {
      * @return mock operator instance
      */
     public static Operator getMockOperator() {
+        Random random = new Random();
         Operator operator = new Operator();
         OperatorInformation operatorInformation = new OperatorInformation();
 
         operator.setLogin(TEST_OPERATOR_LOGIN_PREFIX + UUID.randomUUID().toString());
+        operator.setPassword(UUID.randomUUID().toString());
         operator.setEmail(UUID.randomUUID().toString() + TEST_OPERATOR_EMAIL_SUFFIX);
-        operator.setPassword(TEST_OPERATOR_RAW_PASSWORD);
         operator.setOperatorInformation(operatorInformation);
 
-        operatorInformation.setFullName(TEST_OPERATOR_FULL_NAME);
-        operatorInformation.setBirthDate(TEST_OPERATOR_BIRTHDATE);
-        operatorInformation.setCountry(TEST_OPERATOR_COUNTRY);
-        operatorInformation.setCity(TEST_OPERATOR_CITY);
-        operatorInformation.setAbout(TEST_OPERATOR_ABOUT);
+        operatorInformation.setFullName(TEST_OPERATOR_FULL_NAME_PREFIX + UUID.randomUUID().toString());
+        operatorInformation.setBirthDate(LocalDate.ofYearDay(
+                1930 + random.nextInt(71),
+                1 + random.nextInt(365)));
+        operatorInformation.setCountry(TEST_OPERATOR_COUNTRY_PREFIX + UUID.randomUUID().toString());
+        operatorInformation.setCity(TEST_OPERATOR_CITY_PREFIX + UUID.randomUUID().toString());
+        operatorInformation.setAbout(TEST_OPERATOR_ABOUT_PREFIX + UUID.randomUUID().toString());
 
         return operator;
+    }
+
+    /**
+     * Change existing {@link Operator}. Firstly, new mock entity is made and then copying of necessary
+     * fields from old entity (generally with constraints Id, Unique, NaturalId etc) is performed.
+     *
+     * @param oldOperator old entity
+     * @return changed entity
+     */
+    public static Operator getChangedMockOperator(Operator oldOperator) {
+        Operator newOperator = getMockOperator();
+
+        newOperator.setId(oldOperator.getId());
+        newOperator.setLogin(oldOperator.getLogin());
+        newOperator.setRegistrationTimestamp(oldOperator.getRegistrationTimestamp());
+
+        return newOperator;
     }
 
     /**
@@ -132,7 +150,7 @@ public final class MockFactory {
         List<Operator> operatorList = getCreatedEntitiesList(
                 Operator.class,
                 RELATED_ENTITIES_AMOUNT,
-                HttpStatus.OK);
+                HttpStatus.CREATED);
 
         customerRequestStage.setComment(TEST_CUSTOMER_REQUEST_STAGE_DESCRIPTION);
         customerRequestStage.setOperators(operatorList);
